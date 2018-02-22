@@ -4,6 +4,8 @@
 
 package org.mozilla.focus.integration
 
+import android.content.Context
+import android.content.res.Resources
 import android.support.test.espresso.Espresso.onView
 import android.support.test.espresso.IdlingRegistry
 import android.support.test.espresso.action.ViewActions.pressImeActionButton
@@ -24,10 +26,15 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.ArgumentMatchers.anyInt
+import org.mockito.Mockito.`when`
+import org.mockito.Mockito.mock
 import org.mozilla.focus.R
 import org.mozilla.focus.activity.MainActivity
 import org.mozilla.focus.fragment.BrowserFragment
 import org.mozilla.focus.helpers.SessionLoadedIdlingResource
+import org.mozilla.focus.web.IWebView
+import java.io.ByteArrayInputStream
 
 /** An integration test to verify [IWebView.evalJS] works correctly. */
 @RunWith(AndroidJUnit4::class)
@@ -69,14 +76,36 @@ class IWebViewEvalJavascriptTest {
         // Assert loaded.
         assertBodyText(expectedLoadedText)
 
-        // Inject JS.
-        val expectedChangedText = "Changed"
         val browserFragment = activityTestRule.activity.supportFragmentManager.findFragmentByTag(
                 BrowserFragment.FRAGMENT_TAG) as BrowserFragment
         val webView = browserFragment.webView!!
+
+        verifyEvalJS(webView)
+        verifyEvalJSWithRawRes(webView)
+    }
+
+    private fun verifyEvalJS(webView: IWebView) {
+        val expectedChangedText = "Eval From String"
         activityTestRule.runOnUiThread {
-            webView.evalJS(
-                    "document.getElementsByTagName('body')[0].innerText = '$expectedChangedText';")
+            webView.evalJS(getJSToChangeBodyText(expectedChangedText))
+        }
+
+        // Assert JS was injected.
+        assertBodyText(expectedChangedText)
+    }
+
+    private fun verifyEvalJSWithRawRes(webView: IWebView) {
+        val expectedChangedText = "Eval from Raw Res"
+        val jsInputStream = ByteArrayInputStream(
+                getJSToChangeBodyText(expectedChangedText).toByteArray())
+
+        val mockResources = mock(Resources::class.java)
+        `when`(mockResources.openRawResource(anyInt())).thenReturn(jsInputStream)
+        val mockContext = mock(Context::class.java)
+        `when`(mockContext.resources).thenReturn(mockResources)
+
+        activityTestRule.runOnUiThread {
+            webView.evalJSWithRawRes(mockContext, 0)
         }
 
         // Assert JS was injected.
@@ -88,4 +117,7 @@ class IWebViewEvalJavascriptTest {
                 .withElement(findElement(Locator.TAG_NAME, "body"))
                 .check(webMatches(getText(), equalTo(expected)))
     }
+
+    private fun getJSToChangeBodyText(expectedBodyText: String) =
+            "document.getElementsByTagName('body')[0].innerText = '$expectedBodyText'"
 }

@@ -5,6 +5,8 @@
 
 package org.mozilla.focus.web
 
+import android.content.Context
+import android.support.annotation.RawRes
 import android.view.View
 
 import org.mozilla.focus.session.Session
@@ -44,6 +46,22 @@ interface IWebView {
     fun restoreWebViewState(session: Session)
     fun saveWebViewState(session: Session)
     fun destroy()
+
+    /**
+     * Evaluates the provided raw resources as JavaScript. This allows us to write
+     * JavaScript in files, which lets us use editors that support JS (i.e. not AS)
+     * and linter tooling.
+     *
+     * This method will load the resource from disk each time it is called so do not
+     * use it frequently.
+     *
+     * @param rawID A raw resource ID pointing to a JavaScript file.
+     */
+    fun evalJSWithRawRes(context: Context, @RawRes rawID: Int) {
+        context.resources.openRawResource(rawID).bufferedReader().use {
+            evalJS(it.readText())
+        }
+    }
 
     val isYoutubeTV: Boolean
         get() {
