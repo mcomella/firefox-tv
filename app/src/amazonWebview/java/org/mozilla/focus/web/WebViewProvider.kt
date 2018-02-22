@@ -19,6 +19,8 @@ import org.mozilla.focus.webview.FirefoxAmazonWebView
 import org.mozilla.focus.webview.FocusWebViewClient
 import org.mozilla.focus.webview.TrackingProtectionWebViewClient
 
+private const val jsInterfaceName = "firefoxTvJsInterface"
+
 /** Creates a WebView-based IWebView implementation. */
 object WebViewProvider {
     /**
@@ -52,6 +54,8 @@ object WebViewProvider {
 private fun initWebview(webView: AmazonWebView) = with (webView) {
     isVerticalScrollBarEnabled = true
     isHorizontalScrollBarEnabled = true
+
+    addJavascriptInterface(FirefoxJavascriptInterface(), jsInterfaceName)
 
     // TODO This does not exist with the AmazonWebView
     //if (BuildConfig.DEBUG) {
