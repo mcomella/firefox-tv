@@ -109,7 +109,7 @@ public class WebViewProvider {
         }
 
         @Override
-        public void executeJS(@NotNull String js) {
+        public void evalJS(@NotNull String js) {
             throw new NotImplementedError();
         }
 

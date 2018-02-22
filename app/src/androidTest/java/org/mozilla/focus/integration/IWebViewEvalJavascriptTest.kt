@@ -29,9 +29,9 @@ import org.mozilla.focus.activity.MainActivity
 import org.mozilla.focus.fragment.BrowserFragment
 import org.mozilla.focus.helpers.SessionLoadedIdlingResource
 
-/** An integration test to verify [IWebView.executeJS] works correctly. */
+/** An integration test to verify [IWebView.evalJS] works correctly. */
 @RunWith(AndroidJUnit4::class)
-class IWebViewExecuteJavascriptTest {
+class IWebViewEvalJavascriptTest {
 
     @Rule @JvmField
     val activityTestRule = object : ActivityTestRule<MainActivity>(MainActivity::class.java) {
@@ -56,7 +56,7 @@ class IWebViewExecuteJavascriptTest {
     }
 
     @Test
-    fun executeJSTest() {
+    fun evalJSTest() {
         val expectedLoadedText = "Loaded"
         mockServer.enqueue(MockResponse().setBody("<html><body>$expectedLoadedText</body></html>"))
         mockServer.start()
@@ -75,7 +75,7 @@ class IWebViewExecuteJavascriptTest {
                 BrowserFragment.FRAGMENT_TAG) as BrowserFragment
         val webView = browserFragment.webView!!
         activityTestRule.runOnUiThread {
-            webView.executeJS(
+            webView.evalJS(
                     "document.getElementsByTagName('body')[0].innerText = '$expectedChangedText';")
         }
 
