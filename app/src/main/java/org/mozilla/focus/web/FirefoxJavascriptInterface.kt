@@ -4,8 +4,12 @@
 
 package org.mozilla.focus.web
 
-import android.util.Log
 import android.webkit.JavascriptInterface
+import org.json.JSONArray
+import org.json.JSONException
+import org.mozilla.focus.ext.flatMapObj
+import org.mozilla.focus.home.HomeTileIconManager
+import org.mozilla.focus.web.dom.LinkTag
 
 /** The receiver for Javascript we execute in a WebView.*/
 class FirefoxJavascriptInterface {
@@ -19,8 +23,15 @@ class FirefoxJavascriptInterface {
      */
     @JavascriptInterface
     fun onExtractPageFavicons(url: String, linkTagsJSON: String) {
-        Log.d("lol", linkTagsJSON)
-        // todo: save linkTagsJSON.
-        // todo: prefetch icons.
+        val linkTags = linkTagsJSONToLinkTag(linkTagsJSON) ?: return
+        HomeTileIconManager.onReceivedLinkTags(url, linkTags)
+    }
+}
+
+private fun linkTagsJSONToLinkTag(jsonStr: String): List<LinkTag>? {
+    return try {
+        JSONArray(jsonStr).flatMapObj { LinkTag.fromJSON(it) }
+    } catch (e: JSONException) {
+        null
     }
 }

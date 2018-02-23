@@ -16,4 +16,3 @@ inline fun <R> JSONArray.flatMapObj(transform: (JSONObject) -> R?): List<R> {
     }
     return transformedList
 }
-
