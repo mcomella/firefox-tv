@@ -14,6 +14,7 @@ import android.view.View
 import com.amazon.android.webkit.AmazonWebKitFactories
 import com.amazon.android.webkit.AmazonWebKitFactory
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.coroutines.experimental.async
 import org.mozilla.focus.architecture.NonNullObserver
 import org.mozilla.focus.browser.BrowserFragment
 import org.mozilla.focus.home.HomeFragment
@@ -28,6 +29,7 @@ import org.mozilla.focus.utils.OnUrlEnteredListener
 import org.mozilla.focus.utils.SafeIntent
 import org.mozilla.focus.utils.Settings
 import org.mozilla.focus.utils.ViewUtils
+import org.mozilla.focus.utils.publicsuffix.PublicSuffix
 import org.mozilla.focus.widget.InlineAutocompleteEditText
 
 class MainActivity : LocaleAwareAppCompatActivity(), OnUrlEnteredListener {
@@ -62,6 +64,10 @@ class MainActivity : LocaleAwareAppCompatActivity(), OnUrlEnteredListener {
             }
         })
 
+        // On the Home screen, we want to get the custom tiles titles to load synchronously. In
+        // order to do this, we may need to block the UI thread while waiting for the first
+        // PublicSuffix method to complete. To avoid down-time, we preload here.
+        async { PublicSuffix.preload(this@MainActivity) }
         WebViewProvider.preload(this)
     }
 

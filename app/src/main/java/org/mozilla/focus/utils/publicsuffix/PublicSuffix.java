@@ -27,6 +27,12 @@ import java.util.Set;
  * project: https://github.com/google/guava
  */
 public class PublicSuffix {
+
+    @WorkerThread // Calls blocking methods
+    public static void preload(final Context context) {
+        PublicSuffixPatterns.getExactSet(context);
+    }
+
     /**
      * Strip the public suffix from the domain. Returns the original domain if no public suffix
      * could be found.
