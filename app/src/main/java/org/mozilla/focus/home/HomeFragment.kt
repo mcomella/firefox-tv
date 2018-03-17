@@ -7,6 +7,7 @@ package org.mozilla.focus.home
 import android.animation.AnimatorSet
 import android.animation.ObjectAnimator
 import android.content.Context
+import android.graphics.Bitmap
 import android.graphics.Color
 import android.os.Bundle
 import android.os.StrictMode
@@ -28,17 +29,14 @@ import kotlinx.coroutines.experimental.CancellationException
 import kotlinx.coroutines.experimental.CoroutineStart
 import kotlinx.coroutines.experimental.Job
 import kotlinx.coroutines.experimental.android.UI
-import kotlinx.coroutines.experimental.async
 import kotlinx.coroutines.experimental.launch
 import org.mozilla.focus.R
 import org.mozilla.focus.autocomplete.UrlAutoCompleteFilter
 import org.mozilla.focus.ext.forceExhaustive
 import org.mozilla.focus.ext.toJavaURI
 import org.mozilla.focus.ext.toUri
-import org.mozilla.focus.ext.withRoundedCorners
 import org.mozilla.focus.exto.use
 import org.mozilla.focus.home.icons.HomeTileIconManager
-import org.mozilla.focus.home.icons.HomeTilePlaceholderGenerator
 import org.mozilla.focus.telemetry.TelemetryWrapper
 import org.mozilla.focus.telemetry.UrlTextInputLocation
 import org.mozilla.focus.utils.FormattedDomain
@@ -261,24 +259,29 @@ private fun onBindBundledHomeTile(holder: TileViewHolder, tile: BundledHomeTile)
 }
 
 private fun onBindCustomHomeTile(uiLifecycleCancelJob: Job, holder: TileViewHolder, item: CustomHomeTile) = with (holder) {
-    launch(uiLifecycleCancelJob + UI, CoroutineStart.UNDISPATCHED) {
-        val screenshotDeferred = async {
-            val homeTileCornerRadius = itemView.resources.getDimension(R.dimen.home_tile_corner_radius)
-            val homeTilePlaceholderCornerRadius = itemView.resources.getDimension(R.dimen.home_tile_placeholder_corner_radius)
-            val screenshot = HomeTileIconManager.read(itemView.context, item.id)?.withRoundedCorners(homeTileCornerRadius)
-            screenshot ?: HomeTilePlaceholderGenerator.generate(itemView.context, item.url).withRoundedCorners(homeTilePlaceholderCornerRadius)
-        }
+    fun updateUI(title: String, icon: Bitmap) {
+        titleView.text = title
+        iconView.setImageBitmap(icon)
+    }
 
-        // We wait for this to complete so we can animate the whole view.
-        val screenshot = screenshotDeferred.await()
+    // Getting the title may block so we start the maybe async icon job first.
+    val iconDeferred = HomeTileIconManager.readMaybeAsync(itemView.context, item.id, item.url)
+    val tileTitle = getBlockingTileTitle(itemView.context, item)
+
+    // We'd prefer to not have animations, so we update the UI synchronously when possible.
+    if (iconDeferred.isCompleted) {
+        updateUI(tileTitle, iconDeferred.getCompleted())
+        return@with
+    }
+
+    launch(uiLifecycleCancelJob + UI, CoroutineStart.UNDISPATCHED) {
+        val icon = iconDeferred.await()
 
         // NB: Don't suspend after this point (i.e. between view updates like setImage)
         // so we don't see intermediate view states.
-        // TODO: It'd be less error-prone to launch { /* bg work */ launch(UI) { /* UI work */ } }
-        iconView.setImageBitmap(screenshot)
-        titleView.text = getTileTitle(itemView.context, item)
+        updateUI(tileTitle, icon)
 
-        // Animate to avoid pop-in due to thread hand-offs. TODO: animation is janky.
+        // Animate to avoid pop-in due to thread hand-offs.
         AnimatorSet().apply {
             interpolator = CUSTOM_TILE_ICON_INTERPOLATOR
             duration = CUSTOM_TILE_TO_SHOW_MILLIS
@@ -291,7 +294,7 @@ private fun onBindCustomHomeTile(uiLifecycleCancelJob: Job, holder: TileViewHold
     }
 }
 
-private fun getTileTitle(context: Context, item: CustomHomeTile): String {
+private fun getBlockingTileTitle(context: Context, item: CustomHomeTile): String {
     val validUri = item.url.toJavaURI()
     return if (validUri == null) {
         item.url
