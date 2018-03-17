@@ -6,8 +6,10 @@ package org.mozilla.focus.home
 
 import android.animation.AnimatorSet
 import android.animation.ObjectAnimator
+import android.content.Context
 import android.graphics.Color
 import android.os.Bundle
+import android.os.StrictMode
 import android.support.v4.app.Fragment
 import android.support.v4.content.ContextCompat
 import android.support.v7.widget.GridLayoutManager
@@ -23,7 +25,6 @@ import android.widget.LinearLayout
 import kotlinx.android.synthetic.main.fragment_home.*
 import kotlinx.android.synthetic.main.home_tile.view.*
 import kotlinx.coroutines.experimental.CancellationException
-import kotlinx.coroutines.experimental.CompletableDeferred
 import kotlinx.coroutines.experimental.CoroutineStart
 import kotlinx.coroutines.experimental.Job
 import kotlinx.coroutines.experimental.android.UI
@@ -35,6 +36,7 @@ import org.mozilla.focus.ext.forceExhaustive
 import org.mozilla.focus.ext.toJavaURI
 import org.mozilla.focus.ext.toUri
 import org.mozilla.focus.ext.withRoundedCorners
+import org.mozilla.focus.exto.use
 import org.mozilla.focus.telemetry.TelemetryWrapper
 import org.mozilla.focus.telemetry.UrlTextInputLocation
 import org.mozilla.focus.utils.FormattedDomain
@@ -258,8 +260,6 @@ private fun onBindBundledHomeTile(holder: TileViewHolder, tile: BundledHomeTile)
 
 private fun onBindCustomHomeTile(uiLifecycleCancelJob: Job, holder: TileViewHolder, item: CustomHomeTile) = with (holder) {
     launch(uiLifecycleCancelJob + UI, CoroutineStart.UNDISPATCHED) {
-        val validUri = item.url.toJavaURI()
-
         val screenshotDeferred = async {
             val homeTileCornerRadius = itemView.resources.getDimension(R.dimen.home_tile_corner_radius)
             val homeTilePlaceholderCornerRadius = itemView.resources.getDimension(R.dimen.home_tile_placeholder_corner_radius)
@@ -267,24 +267,14 @@ private fun onBindCustomHomeTile(uiLifecycleCancelJob: Job, holder: TileViewHold
             screenshot ?: HomeTilePlaceholderGenerator.generate(itemView.context, item.url).withRoundedCorners(homeTilePlaceholderCornerRadius)
         }
 
-        val titleDeferred = if (validUri == null) {
-            CompletableDeferred(item.url)
-        } else {
-            async {
-                val subdomainDotDomain = FormattedDomain.format(itemView.context, validUri, false, 1)
-                FormattedDomain.stripCommonPrefixes(subdomainDotDomain)
-            }
-        }
-
-        // We wait for both to complete so we can animate them together.
+        // We wait for this to complete so we can animate the whole view.
         val screenshot = screenshotDeferred.await()
-        val title = titleDeferred.await()
 
         // NB: Don't suspend after this point (i.e. between view updates like setImage)
         // so we don't see intermediate view states.
         // TODO: It'd be less error-prone to launch { /* bg work */ launch(UI) { /* UI work */ } }
         iconView.setImageBitmap(screenshot)
-        titleView.text = title
+        titleView.text = getTileTitle(itemView.context, item)
 
         // Animate to avoid pop-in due to thread hand-offs. TODO: animation is janky.
         AnimatorSet().apply {
@@ -296,6 +286,26 @@ private fun onBindCustomHomeTile(uiLifecycleCancelJob: Job, holder: TileViewHold
 
             playTogether(iconAnim, titleAnim)
         }.start()
+    }
+}
+
+private fun getTileTitle(context: Context, item: CustomHomeTile): String {
+    val validUri = item.url.toJavaURI()
+    return if (validUri == null) {
+        item.url
+    } else {
+        // NB: The initial FormattedDomain call will block the UI thread if its data is not done
+        // reading. However:
+        // - We preload this data on app start
+        // - The OS delays the app launch, giving us more time to block the UI thread without consequences.
+        //
+        // Ultimately, we don't want animations which means loading the title synchronously. I
+        // tried a more correct solution - returning deferred only if the call isn't completed
+        // yet - but it's unreasonably complex so we just block the UI thread instead.
+        StrictMode.allowThreadDiskReads().use {
+            val subdomainDotDomain = FormattedDomain.format(context, validUri, false, 1)
+            FormattedDomain.stripCommonPrefixes(subdomainDotDomain)
+        }
     }
 }
 
