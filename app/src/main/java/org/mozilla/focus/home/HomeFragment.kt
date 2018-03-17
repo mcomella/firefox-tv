@@ -37,8 +37,8 @@ import org.mozilla.focus.ext.toJavaURI
 import org.mozilla.focus.ext.toUri
 import org.mozilla.focus.ext.withRoundedCorners
 import org.mozilla.focus.exto.use
+import org.mozilla.focus.home.icons.HomeTileIconManager
 import org.mozilla.focus.home.icons.HomeTilePlaceholderGenerator
-import org.mozilla.focus.home.icons.HomeTileScreenshotStore
 import org.mozilla.focus.telemetry.TelemetryWrapper
 import org.mozilla.focus.telemetry.UrlTextInputLocation
 import org.mozilla.focus.utils.FormattedDomain
@@ -265,7 +265,7 @@ private fun onBindCustomHomeTile(uiLifecycleCancelJob: Job, holder: TileViewHold
         val screenshotDeferred = async {
             val homeTileCornerRadius = itemView.resources.getDimension(R.dimen.home_tile_corner_radius)
             val homeTilePlaceholderCornerRadius = itemView.resources.getDimension(R.dimen.home_tile_placeholder_corner_radius)
-            val screenshot = HomeTileScreenshotStore.read(itemView.context, item.id)?.withRoundedCorners(homeTileCornerRadius)
+            val screenshot = HomeTileIconManager.read(itemView.context, item.id)?.withRoundedCorners(homeTileCornerRadius)
             screenshot ?: HomeTilePlaceholderGenerator.generate(itemView.context, item.url).withRoundedCorners(homeTilePlaceholderCornerRadius)
         }
 

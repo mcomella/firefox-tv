@@ -14,6 +14,7 @@ import android.support.annotation.AnyThread
 import android.support.annotation.UiThread
 import org.json.JSONArray
 import org.mozilla.focus.ext.toUri
+import org.mozilla.focus.home.icons.HomeTileIconManager
 import org.mozilla.focus.home.icons.HomeTileScreenshotStore
 import org.mozilla.focus.utils.UrlUtils
 import java.util.UUID
@@ -175,7 +176,7 @@ class CustomTilesManager private constructor(context: Context) {
     fun unpinSite(context: Context, url: String): Boolean {
         val tile = customTilesCache.remove(url) ?: return false
         writeCacheToSharedPreferences(context)
-        HomeTileScreenshotStore.removeAsync(context, tile.id)
+        HomeTileIconManager.removeAsync(context, tile.id)
         return true
     }
 

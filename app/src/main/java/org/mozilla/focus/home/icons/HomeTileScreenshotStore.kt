@@ -115,7 +115,7 @@ object HomeTileScreenshotStore {
 
     /** @param a unique identifier for this screenshot. */
     @AnyThread
-    fun removeAsync(context: Context, uuid: UUID) = launch {
+    internal fun removeAsync(context: Context, uuid: UUID) = launch {
         getMutex(uuid).withLock {
             getFileForUUID(context, uuid).delete()
         }
@@ -128,7 +128,7 @@ object HomeTileScreenshotStore {
      * @return The decoded [Bitmap], or null if the file DNE or the bitmap could not be decoded.
      */
     @WorkerThread // file access.
-    suspend fun read(context: Context, uuid: UUID) = getMutex(uuid).withLock { // TODO: consider timeout: #610
+    internal suspend fun read(context: Context, uuid: UUID) = getMutex(uuid).withLock { // TODO: consider timeout: #610
         val file = getFileForUUID(context, uuid)
         if (!file.exists()) {
             null
