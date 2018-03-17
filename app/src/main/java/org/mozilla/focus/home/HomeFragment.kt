@@ -37,6 +37,8 @@ import org.mozilla.focus.ext.toJavaURI
 import org.mozilla.focus.ext.toUri
 import org.mozilla.focus.ext.withRoundedCorners
 import org.mozilla.focus.exto.use
+import org.mozilla.focus.home.icons.HomeTilePlaceholderGenerator
+import org.mozilla.focus.home.icons.HomeTileScreenshotStore
 import org.mozilla.focus.telemetry.TelemetryWrapper
 import org.mozilla.focus.telemetry.UrlTextInputLocation
 import org.mozilla.focus.utils.FormattedDomain

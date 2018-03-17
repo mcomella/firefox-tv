@@ -14,6 +14,7 @@ import android.support.annotation.AnyThread
 import android.support.annotation.UiThread
 import org.json.JSONArray
 import org.mozilla.focus.ext.toUri
+import org.mozilla.focus.home.icons.HomeTileScreenshotStore
 import org.mozilla.focus.utils.UrlUtils
 import java.util.UUID
 

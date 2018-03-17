@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-package org.mozilla.focus.home
+package org.mozilla.focus.home.icons
 
 import android.content.Context
 import android.graphics.Bitmap
@@ -14,8 +14,8 @@ import kotlinx.coroutines.experimental.launch
 import kotlinx.coroutines.experimental.sync.Mutex
 import kotlinx.coroutines.experimental.sync.withLock
 import org.mozilla.focus.ext.arePixelsAllTheSame
-import org.mozilla.focus.home.HomeTileScreenshotStore.DIR
-import org.mozilla.focus.home.HomeTileScreenshotStore.uuidToFileSystemMutex
+import org.mozilla.focus.home.icons.HomeTileScreenshotStore.DIR
+import org.mozilla.focus.home.icons.HomeTileScreenshotStore.uuidToFileSystemMutex
 import java.io.File
 import java.util.UUID
 

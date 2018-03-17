@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-package org.mozilla.focus.integration.home
+package org.mozilla.focus.integration.home.icons
 
 import android.content.Context
 import android.graphics.Bitmap
@@ -15,7 +15,7 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mozilla.focus.assertEqualsWithDelta
-import org.mozilla.focus.home.HomeTileScreenshotStore
+import org.mozilla.focus.home.icons.HomeTileScreenshotStore
 import java.util.UUID
 
 private const val DIMEN = 140 // should be divisible by 4.
