@@ -6,6 +6,7 @@ package org.mozilla.focus.home.icons
 
 import android.content.Context
 import android.graphics.Bitmap
+import android.util.Log
 import android.util.LruCache
 import kotlinx.coroutines.experimental.Deferred
 import kotlinx.coroutines.experimental.Job
@@ -18,6 +19,8 @@ private const val MAX_CACHE_COUNT = 60 // Each screenshot is ~0.5 MiB so this is
 
 /**
  * TODO: docs, add caching
+ * - Are animations for first run and new tiles acceptable?
+ * - Low memory.
  */
 object HomeTileIconManager {
 
@@ -25,6 +28,7 @@ object HomeTileIconManager {
     private val cache = LruCache<UUID, Deferred<Bitmap>>(MAX_CACHE_COUNT)
 
     fun removeAsync(context: Context, uuid: UUID): Job {
+        Log.d("lol", "test")
         cache.remove(uuid)
         return screenshotStore.removeAsync(context, uuid)
     }
