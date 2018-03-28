@@ -162,6 +162,7 @@ class BrowserFragment : IWebViewLifecycleFragment() {
 
         cursor = CursorController(this, cursorParent = layout.browserFragmentRoot,
                 view = layout.cursorView)
+        cursor!!.cursorActiveView = layout.cursorActiveView
         lifecycle.addObserver(cursor!!)
 
         layout.browserOverlay.onNavigationEvent = onNavigationEvent

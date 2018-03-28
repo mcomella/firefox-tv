@@ -44,9 +44,13 @@ class CursorView(context: Context, attrs: AttributeSet) : ImageView(context, att
         val remoteKey = RemoteKey.fromKeyEvent(event)
         if (remoteKey == RemoteKey.CENTER || event.keyCode == KeyEvent.KEYCODE_ENTER) {
             if (event.action == KeyEvent.ACTION_DOWN) {
-                setImageResource(R.drawable.cursor_full_active)
+                val alpha = if (id == R.id.cursorView) 0f else 1f
+                animate().alpha(alpha).setDuration(150).start()
+//                setImageDrawable(pressed)
             } else if (event.action == KeyEvent.ACTION_UP) {
-                setImageResource(R.drawable.cursor_full)
+                val alpha = if (id == R.id.cursorView) 1f else 0f
+                animate().alpha(alpha).setDuration(150).start()
+//                setImageDrawable(normal)
             }
         }
     }
@@ -63,7 +67,7 @@ class CursorView(context: Context, attrs: AttributeSet) : ImageView(context, att
 
     private fun setMaxVisibility() {
         animate().cancel()
-        alpha = 1f
+        alpha = if (id == R.id.cursorView) 1f else 0f
     }
 
     private fun resetCountdown() {

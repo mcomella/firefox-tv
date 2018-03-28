@@ -50,6 +50,15 @@
         android:scaleType="centerInside"
         />
 
+    <org.mozilla.focus.browser.cursor.CursorView
+        android:id="@+id/cursorActiveView"
+        android:layout_width="@dimen/remote_cursor_size"
+        android:layout_height="@dimen/remote_cursor_size"
+        android:layout_gravity="top|start"
+        android:src="@drawable/cursor_full_active"
+        android:scaleType="centerInside"
+        />
+
     <org.mozilla.focus.browser.FirefoxProgressBar
         android:id="@+id/progressBar"
         android:layout_width="match_parent"

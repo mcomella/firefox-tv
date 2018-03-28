@@ -38,13 +38,17 @@ class CursorController(
         private val view: CursorView
 ) : AccessibilityManager.TouchExplorationStateChangeListener, LifecycleObserver {
 
+    var cursorActiveView: CursorView? = null
+
     private var isEnabled: Boolean by Delegates.observable(true) { _, _, newValue ->
         keyDispatcher.isEnabled = newValue
         view.visibility = if (newValue) View.VISIBLE else View.GONE
+        cursorActiveView?.visibility = if (newValue) View.VISIBLE else View.GONE
     }
 
     private val viewModel = CursorViewModel(onUpdate = { x, y, percentMaxScrollVel, framesPassed ->
         view.updatePosition(x, y)
+        cursorActiveView?.updatePosition(x, y)
         scrollWebView(percentMaxScrollVel, framesPassed)
     }, simulateTouchEvent = { browserFragment.activity.dispatchTouchEvent(it) })
 
@@ -57,6 +61,7 @@ class CursorController(
     }, onSelectKey = { event ->
         viewModel.onSelectKeyEvent(event.action)
         view.updateCursorPressedState(event)
+        cursorActiveView?.updateCursorPressedState(event)
     })
 
     private val isLoadingObserver = CursorIsLoadingObserver()
@@ -92,12 +97,14 @@ class CursorController(
     @OnLifecycleEvent(Lifecycle.Event.ON_PAUSE)
     fun onPause() {
         view.cancelUpdates()
+        cursorActiveView?.cancelUpdates()
         viewModel.cancelUpdates()
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
     fun onResume() {
         view.startUpdates()
+        cursorActiveView?.startUpdates()
     }
 
     override fun onTouchExplorationStateChanged(isEnabled: Boolean) {
