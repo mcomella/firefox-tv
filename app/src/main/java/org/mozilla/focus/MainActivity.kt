@@ -152,6 +152,8 @@ class MainActivity : LocaleAwareAppCompatActivity(), OnUrlEnteredListener {
         val browserFragment = fragmentManager.findFragmentByTag(BrowserFragment.FRAGMENT_TAG) as BrowserFragment?
         val homeFragment = fragmentManager.findFragmentByTag(HomeFragment.FRAGMENT_TAG) as HomeFragment?
 
+        throw IllegalStateException("Testing Sentry WIP")
+
         return if (browserFragment != null && browserFragment.isVisible) {
             browserFragment.dispatchKeyEvent(event) || super.dispatchKeyEvent(event)
         } else if (homeFragment != null && homeFragment.isVisible) {

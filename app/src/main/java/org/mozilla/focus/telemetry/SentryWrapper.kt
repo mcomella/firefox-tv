@@ -30,7 +30,7 @@ object SentryWrapper {
         //
         // The BuildConfig value is populated from a file at compile time.
         // If the file// did not exist, the value will be null.
-        val sentryDsn = if (isEnabled) BuildConfig.SENTRY_DSN else null
+        val sentryDsn = if (true) BuildConfig.SENTRY_DSN else null
 
         // Unfortunately, Sentry doesn't make it easy to disable upload. However,
         // in the current implementation, each time `init` is called, it will overwrite

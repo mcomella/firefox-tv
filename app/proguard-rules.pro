@@ -45,3 +45,13 @@
 # https://developer.android.com/topic/libraries/architecture/release-notes.html
 # According to the docs this won't be needed when 1.0 of the library is released.
 -keep class * implements android.arch.lifecycle.GeneratedAdapter {<init>(...);}
+
+####################################################################################################
+# Sentry
+####################################################################################################
+
+# Via https://docs.sentry.io/clients/java/modules/android/#manual-integration
+# We don't use their gradle plugin, which I couldn't get to inject this config anyway.
+-keepattributes LineNumberTable,SourceFile
+-dontwarn org.slf4j.**
+-dontwarn javax.**
