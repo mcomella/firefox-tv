@@ -16,13 +16,13 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.core.view.updateLayoutParams
 import kotlinx.android.synthetic.main.fragment_pocket_video.view.*
 import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.launch
 import org.mozilla.focus.R
 import org.mozilla.focus.ScreenController
 import org.mozilla.focus.ext.resetAfter
-import org.mozilla.focus.ext.updateLayoutParams
 import org.mozilla.focus.session.Source
 import org.mozilla.focus.telemetry.TelemetryWrapper
 import org.mozilla.focus.utils.FormattedDomain
@@ -171,12 +171,10 @@ private class PocketVideoAdapter(
      * paddingStart/End. Unfortunately, this causes a visual glitch as each card scrolls offscreen.
      * Instead, we set the margins for the first and last card.
      */
-    private fun setHorizontalMargins(holder: PocketVideoViewHolder, position: Int) = holder.itemView.updateLayoutParams {
-        (it as ViewGroup.MarginLayoutParams).apply {
-            // We need to reset margins on every view, not just first/last, because the View instance can be re-used.
-            marginStart = if (position == 0) feedHorizontalMargin else videoItemHorizontalMargin
-            marginEnd = if (position == feedItems.size - 1) feedHorizontalMargin else videoItemHorizontalMargin
-        }
+    private fun setHorizontalMargins(holder: PocketVideoViewHolder, position: Int) = holder.itemView.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+        // We need to reset margins on every view, not just first/last, because the View instance can be re-used.
+        marginStart = if (position == 0) feedHorizontalMargin else videoItemHorizontalMargin
+        marginEnd = if (position == feedItems.size - 1) feedHorizontalMargin else videoItemHorizontalMargin
     }
 }
 
