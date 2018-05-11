@@ -17,6 +17,7 @@ import android.widget.ImageButton
 import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.Toast
+import androidx.core.view.forEach
 import kotlinx.android.synthetic.main.browser_overlay.view.*
 import kotlinx.android.synthetic.main.browser_overlay_top_nav.view.*
 import kotlinx.coroutines.experimental.Job
@@ -24,7 +25,6 @@ import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.launch
 import org.mozilla.focus.R
 import org.mozilla.focus.autocomplete.UrlAutoCompleteFilter
-import org.mozilla.focus.ext.forEachChild
 import org.mozilla.focus.ext.updateLayoutParams
 import org.mozilla.focus.home.HomeTilesManager
 import org.mozilla.focus.home.pocket.Pocket
@@ -106,7 +106,7 @@ class BrowserNavigationOverlay @JvmOverloads constructor(
         LayoutInflater.from(context)
                 .inflate(R.layout.browser_overlay, this, true)
 
-        topNavContainer.forEachChild {
+        topNavContainer.forEach {
             it.nextFocusDownId = navUrlInput.id
             if (it.isFocusable) it.setOnClickListener(this)
         }
