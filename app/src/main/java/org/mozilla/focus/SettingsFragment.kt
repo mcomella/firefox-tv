@@ -11,9 +11,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.accessibility.AccessibilityManager
+import androidx.core.content.systemService
 import kotlinx.android.synthetic.main.fragment_settings.*
 import org.mozilla.focus.browser.InfoActivity
-import org.mozilla.focus.ext.getAccessibilityManager
 import org.mozilla.focus.ext.isVoiceViewEnabled
 import org.mozilla.focus.session.SessionManager
 import org.mozilla.focus.telemetry.DataUploadPreference
@@ -72,13 +72,13 @@ class SettingsFragment : Fragment() {
 
     override fun onStart() {
         super.onStart()
-        context.getAccessibilityManager().addTouchExplorationStateChangeListener(voiceViewStateChangeListener)
+        context.systemService<AccessibilityManager>().addTouchExplorationStateChangeListener(voiceViewStateChangeListener)
         updateForAccessibility()
     }
 
     override fun onStop() {
         super.onStop()
-        context.getAccessibilityManager().removeTouchExplorationStateChangeListener(voiceViewStateChangeListener)
+        context.systemService<AccessibilityManager>().removeTouchExplorationStateChangeListener(voiceViewStateChangeListener)
     }
 
     /**

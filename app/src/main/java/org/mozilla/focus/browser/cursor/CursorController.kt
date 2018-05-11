@@ -11,11 +11,11 @@ import android.graphics.PointF
 import android.view.KeyEvent
 import android.view.View
 import android.view.accessibility.AccessibilityManager
+import androidx.core.content.systemService
 import androidx.core.view.isVisible
 import kotlinx.android.synthetic.main.fragment_browser.*
 import org.mozilla.focus.architecture.NonNullObserver
 import org.mozilla.focus.browser.BrowserFragment
-import org.mozilla.focus.ext.getAccessibilityManager
 import org.mozilla.focus.ext.isVoiceViewEnabled
 import kotlin.properties.Delegates
 
@@ -77,7 +77,7 @@ class CursorController(
 
     @OnLifecycleEvent(Lifecycle.Event.ON_START)
     fun onStart() {
-        browserFragment.context.getAccessibilityManager().addTouchExplorationStateChangeListener(this)
+        browserFragment.context.systemService<AccessibilityManager>().addTouchExplorationStateChangeListener(this)
         setEnabledForCurrentState() // VoiceView state may change.
 
         browserFragment.session.loading.observe(browserFragment, isLoadingObserver)
@@ -85,7 +85,7 @@ class CursorController(
 
     @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
     fun onStop() {
-        browserFragment.context.getAccessibilityManager().removeTouchExplorationStateChangeListener(this)
+        browserFragment.context.systemService<AccessibilityManager>().removeTouchExplorationStateChangeListener(this)
 
         browserFragment.session.loading.removeObserver(isLoadingObserver)
     }
