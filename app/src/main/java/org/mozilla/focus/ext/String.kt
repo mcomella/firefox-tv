@@ -78,12 +78,6 @@ fun String.removePrefixesIgnoreCase(vararg prefixes: String): String {
     return value
 }
 
-fun String?.toUri(): Uri? = if (this == null) {
-    null
-} else {
-    Uri.parse(this)
-}
-
 fun String?.toJavaURI(): URI? = if (this == null) {
     null
 } else {

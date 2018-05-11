@@ -12,8 +12,8 @@ import android.graphics.BitmapFactory
 import android.net.Uri
 import android.support.annotation.AnyThread
 import android.support.annotation.UiThread
+import androidx.core.net.toUri
 import org.json.JSONArray
-import org.mozilla.focus.ext.toUri
 import org.mozilla.focus.utils.UrlUtils
 import java.util.UUID
 
@@ -59,7 +59,7 @@ class BundledTilesManager private constructor(context: Context) {
         for (i in 0 until tilesJSONArray.length()) {
             val tile = BundledHomeTile.fromJSONObject(tilesJSONArray.getJSONObject(i))
             if (!blacklist.contains(tile.id)) {
-                lhm.put(tile.url.toUri()!!, tile)
+                lhm.put(tile.url.toUri(), tile)
             }
         }
         return lhm
@@ -218,12 +218,7 @@ class HomeTilesManager {
 
         fun removeHomeTile(homeTile: HomeTile, context: Context) {
             when (homeTile) {
-                is BundledHomeTile -> {
-                    val tileUri = homeTile.url.toUri()
-                    if (tileUri != null) {
-                        BundledTilesManager.getInstance(context).unpinSite(context, tileUri)
-                    }
-                }
+                is BundledHomeTile -> BundledTilesManager.getInstance(context).unpinSite(context, homeTile.url.toUri())
                 is CustomHomeTile -> CustomTilesManager.getInstance(context).unpinSite(context, homeTile.url)
             }
         }

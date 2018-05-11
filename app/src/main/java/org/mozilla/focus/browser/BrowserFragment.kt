@@ -15,6 +15,7 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
+import androidx.core.net.toUri
 import kotlinx.android.synthetic.main.browser_overlay.*
 import kotlinx.android.synthetic.main.browser_overlay.view.*
 import kotlinx.android.synthetic.main.fragment_browser.*
@@ -29,7 +30,6 @@ import org.mozilla.focus.architecture.NonNullObserver
 import org.mozilla.focus.browser.BrowserFragment.Companion.APP_URL_HOME
 import org.mozilla.focus.browser.cursor.CursorController
 import org.mozilla.focus.ext.isVisible
-import org.mozilla.focus.ext.toUri
 import org.mozilla.focus.home.BundledTilesManager
 import org.mozilla.focus.home.CustomTilesManager
 import org.mozilla.focus.home.HomeTilesManager
@@ -134,24 +134,22 @@ class BrowserFragment : IWebViewLifecycleFragment() {
             }
             NavigationEvent.POCKET -> ScreenController.showPocketScreen(fragmentManager)
             NavigationEvent.PIN_ACTION -> {
-                this@BrowserFragment.url?.let { url ->
+                this@BrowserFragment.url?.let { urlStr ->
                     when (value) {
                         NavigationEvent.VAL_CHECKED -> {
-                            CustomTilesManager.getInstance(context).pinSite(context, url,
+                            CustomTilesManager.getInstance(context).pinSite(context, urlStr,
                                     webView?.takeScreenshot())
                             browserOverlay.refreshTilesForInsertion()
                             showCenteredTopToast(context, R.string.notification_pinned_site, 0, TOAST_Y_OFFSET)
                         }
                         NavigationEvent.VAL_UNCHECKED -> {
-                            url.toUri()?.let {
-                                val tileId = BundledTilesManager.getInstance(context).unpinSite(context, it)
-                                        ?: CustomTilesManager.getInstance(context).unpinSite(context, url)
-                                // tileId should never be null, unless, for some reason we don't
-                                // have a reference to the tile/the tile isn't a Bundled or Custom tile
-                                if (tileId != null && !tileId.isEmpty()) {
-                                    browserOverlay.removePinnedSiteFromTiles(tileId)
-                                    showCenteredTopToast(context, R.string.notification_unpinned_site, 0, TOAST_Y_OFFSET)
-                                }
+                            val tileId = BundledTilesManager.getInstance(context).unpinSite(context, urlStr.toUri())
+                                    ?: CustomTilesManager.getInstance(context).unpinSite(context, urlStr)
+                            // tileId should never be null, unless, for some reason we don't
+                            // have a reference to the tile/the tile isn't a Bundled or Custom tile
+                            if (tileId != null && !tileId.isEmpty()) {
+                                browserOverlay.removePinnedSiteFromTiles(tileId)
+                                showCenteredTopToast(context, R.string.notification_unpinned_site, 0, TOAST_Y_OFFSET)
                             }
                         }
                         else -> throw IllegalArgumentException("Unexpected value for PIN_ACTION: " + value)
@@ -298,7 +296,7 @@ class BrowserFragment : IWebViewLifecycleFragment() {
         override fun isPinEnabled() = !isUrlEqualToHomepage
         override fun isRefreshEnabled() = !isUrlEqualToHomepage
         override fun getCurrentUrl() = url
-        override fun isURLPinned() = url.toUri()?.let {
+        override fun isURLPinned() = url?.toUri()?.let {
             // TODO: #569 fix CustomTilesManager to use Uri too
             CustomTilesManager.getInstance(context).isURLPinned(it.toString()) ||
                     BundledTilesManager.getInstance(context).isURLPinned(it) } ?: false
