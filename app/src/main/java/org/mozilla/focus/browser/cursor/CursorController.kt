@@ -11,11 +11,11 @@ import android.graphics.PointF
 import android.view.KeyEvent
 import android.view.View
 import android.view.accessibility.AccessibilityManager
+import androidx.core.view.isVisible
 import kotlinx.android.synthetic.main.fragment_browser.*
 import org.mozilla.focus.architecture.NonNullObserver
 import org.mozilla.focus.browser.BrowserFragment
 import org.mozilla.focus.ext.getAccessibilityManager
-import org.mozilla.focus.ext.isVisible
 import org.mozilla.focus.ext.isVoiceViewEnabled
 import kotlin.properties.Delegates
 
