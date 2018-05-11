@@ -146,6 +146,7 @@ dependencies {
     implementation "com.android.support:recyclerview-v7:$support_libraries_version"
     implementation "com.android.support:leanback-v17:$support_libraries_version"
     implementation 'com.android.support.constraint:constraint-layout:1.0.2'
+    implementation 'androidx.core:core-ktx:0.3'
 
     implementation "android.arch.lifecycle:extensions:$architecture_components_version"
 
