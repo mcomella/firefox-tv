@@ -8,7 +8,10 @@ package org.mozilla.focus
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.os.Debug
+import android.os.Environment
 import android.util.AttributeSet
+import android.util.Log
 import android.view.KeyEvent
 import android.view.View
 import com.amazon.android.webkit.AmazonWebKitFactories
@@ -35,6 +38,7 @@ import org.mozilla.focus.utils.Settings
 import org.mozilla.focus.utils.ViewUtils
 import org.mozilla.focus.utils.publicsuffix.PublicSuffix
 import org.mozilla.focus.widget.InlineAutocompleteEditText
+import java.io.File
 
 interface MediaSessionHolder {
     val videoVoiceCommandMediaSession: VideoVoiceCommandMediaSession
@@ -69,6 +73,11 @@ class MainActivity : LocaleAwareAppCompatActivity(), OnUrlEnteredListener, Media
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        val path = File(filesDir, "startup.trace").absolutePath
+//        val path = File(Environment.getExternalStorageDirectory(), "startup.trace").absolutePath
+        Log.d("lol", path)
+        Debug.startMethodTracingSampling(path, 0, 100)
 
         // Enable crash reporting. Don't add anything above here because if it crashes, we won't know.
         SentryWrapper.init(this)
@@ -124,6 +133,7 @@ class MainActivity : LocaleAwareAppCompatActivity(), OnUrlEnteredListener, Media
     override fun onResume() {
         super.onResume()
         TelemetryWrapper.startSession(this)
+        Debug.stopMethodTracing()
     }
 
     override fun onPause() {
