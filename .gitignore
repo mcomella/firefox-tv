@@ -61,3 +61,6 @@ Screengrabfile
 
 # robotranslations file
 tools/l10n/robotranslations/locales.yaml
+
+# Dependencies
+tools/node/node_modules

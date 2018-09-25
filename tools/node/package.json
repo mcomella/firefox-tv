@@ -1,0 +1,17 @@
+{
+  "name": "firefox-tv",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mozilla-mobile/firefox-tv.git"
+  },
+  "license": "MPL-2.0",
+  "bugs": {
+    "url": "https://github.com/mozilla-mobile/firefox-tv/issues"
+  },
+  "homepage": "https://github.com/mozilla-mobile/firefox-tv#readme",
+  "devDependencies": {
+    "@types/node": "^10.11.0",
+    "danger": "^4.0.2",
+    "typescript": "^3.0.3"
+  }
+}
