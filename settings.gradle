@@ -1,1 +1,5 @@
 include ':app'
+
+include ':danger'
+project(':danger').projectDir = file('tools/danger')
+project(':danger').name = "dangerfile" // danger binary expects dangerfile.js output
