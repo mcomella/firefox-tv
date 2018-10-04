@@ -110,6 +110,8 @@ API services currently supported are:
 * pocket_key
 
 ## License
+All files in this repository are licensed under the MPL 2.0 unless otherwise
+specified.
 
     This Source Code Form is subject to the terms of the Mozilla Public
     License, v. 2.0. If a copy of the MPL was not distributed with this
