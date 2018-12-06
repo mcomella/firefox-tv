@@ -7,7 +7,10 @@ package org.mozilla.tv.firefox.webrender
 import android.app.Activity
 import android.arch.lifecycle.ViewModelProviders
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.support.annotation.UiThread
+import android.util.Log
 import android.view.ContextMenu
 import android.view.KeyEvent
 import android.view.LayoutInflater
@@ -15,6 +18,8 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
+import android.webkit.JavascriptInterface
+import android.webkit.WebView
 import kotlinx.android.synthetic.main.browser_overlay.*
 import kotlinx.android.synthetic.main.browser_overlay.view.*
 import kotlinx.android.synthetic.main.fragment_browser.*
@@ -27,6 +32,8 @@ import org.mozilla.tv.firefox.MainActivity
 import org.mozilla.tv.firefox.MainActivity.Companion.PARENT_FRAGMENT
 import org.mozilla.tv.firefox.MediaSessionHolder
 import org.mozilla.tv.firefox.R
+import org.mozilla.tv.firefox.ext.addJavascriptInterface
+import org.mozilla.tv.firefox.ext.evalJS
 import org.mozilla.tv.firefox.webrender.cursor.CursorController
 import org.mozilla.tv.firefox.ext.webRenderComponents
 import org.mozilla.tv.firefox.ext.isVisible
@@ -46,6 +53,8 @@ import org.mozilla.tv.firefox.utils.ViewUtils.showCenteredBottomToast
 import org.mozilla.tv.firefox.utils.ServiceLocator
 import org.mozilla.tv.firefox.utils.ViewUtils.showCenteredTopToast
 import org.mozilla.tv.firefox.widget.InlineAutocompleteEditText
+import android.webkit.WebBackForwardList
+import mozilla.components.browser.engine.system.SystemEngineView
 
 private const val ARGUMENT_SESSION_UUID = "sessionUUID"
 
@@ -280,6 +289,46 @@ class WebRenderFragment : EngineViewLifecycleFragment(), Session.Observer {
         if (session.url == APP_URL_HOME) {
             browserOverlay?.visibility = View.VISIBLE
         }
+
+        webView.addJavascriptInterface(Whatever(), "ytMachine")
+    }
+
+    fun WebBackForwardList.toList(): List<String> {
+        return List(size) {
+            getItemAtIndex(it).originalUrl
+        }
+    }
+
+    fun SystemEngineView.whatever() {
+    }
+
+    inner class Whatever {
+        @JavascriptInterface
+        fun youtubeBack(sendBack: Boolean) {
+            Log.d("lol", "youtubeBack, sendBack: $sendBack")
+            if (sendBack) {
+                Handler(Looper.getMainLooper()).post {
+                    val wv = (webView as ViewGroup).getChildAt(0) as WebView
+                    val backForward = wv.copyBackForwardList().toList()
+                    val youtubeIndex = backForward.lastIndexOf("https://ftv.cdn.mozilla.net/ytht")
+                    val goBackSteps = backForward.size - youtubeIndex
+                    wv.goBackOrForward(-goBackSteps)
+                }
+                return
+            }
+            val keyCode = if (sendBack) KeyEvent.KEYCODE_BACK else KeyEvent.KEYCODE_ESCAPE
+            Log.d("lol", "sendingKeyCode $keyCode")
+
+            youtubeOverride = true
+            youtubeEvents.forEach {
+                val newKeyEvent = KeyEvent(it.action, keyCode)
+                Handler(Looper.getMainLooper()).post {
+                    (activity as MainActivity).dispatchKeyEvent(newKeyEvent)
+                }
+            }
+            youtubeEvents.clear()
+            youtubeOverride = false
+        }
     }
 
     override fun onStart() {
@@ -402,6 +451,9 @@ class WebRenderFragment : EngineViewLifecycleFragment(), Session.Observer {
                 (cursor?.keyDispatcher?.dispatchKeyEvent(event) ?: false)
     }
 
+    private var youtubeEvents = mutableListOf<KeyEvent>()
+    var youtubeOverride = false
+
     private fun handleSpecialKeyEvent(event: KeyEvent): Boolean {
         val actionIsDown = event.action == KeyEvent.ACTION_DOWN
 
@@ -417,9 +469,12 @@ class WebRenderFragment : EngineViewLifecycleFragment(), Session.Observer {
         }
 
         if (!browserOverlay.isVisible && session.isYoutubeTV &&
-                event.keyCode == KeyEvent.KEYCODE_BACK) {
-            val escKeyEvent = KeyEvent(event.action, KeyEvent.KEYCODE_ESCAPE)
-            (activity as MainActivity).dispatchKeyEvent(escKeyEvent)
+                event.keyCode == KeyEvent.KEYCODE_BACK &&
+                !youtubeOverride) {
+            Log.d("lol", "special youtube case")
+            youtubeEvents.add(event)
+            // todo: or if active element doesn't change after esc press.
+            webView?.evalJS("ytMachine.youtubeBack(document.activeElement.parentElement.parentElement.id === 'guide-list');")
             return true
         }
         return false
