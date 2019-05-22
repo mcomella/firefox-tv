@@ -66,8 +66,11 @@ class PocketVideoStore(
             convertedVideos.size >= REQUIRED_POCKET_VIDEO_COUNT
     }
 
+    /**
+     * @return the list of loaded videos. This should never happen but in case of error, the empty list is returned.
+     */
     @AnyThread
-    fun load(): List<PocketViewModel.FeedItem>? {
+    fun load(): List<PocketViewModel.FeedItem> {
         fun loadBundledTiles(): String = assets.open(BUNDLED_VIDEOS_PATH).bufferedReader().use { it.readText() }
 
         val rawJSON =  sharedPrefs.getString(KEY_VIDEO_JSON, null) ?: loadBundledTiles()
@@ -80,7 +83,7 @@ class PocketVideoStore(
             // channel will be empty but who knows if focusing around it will work correctly.
             Log.e(LOGTAG, "Error converting JSON to Pocket video")
             SentryIntegration.capture(IllegalStateException("Error converting JSON to Pocket video"))
-            return null
+            return emptyList()
         }
 
         return convertedVideos
