@@ -22,7 +22,6 @@ import org.junit.BeforeClass
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mozilla.tv.firefox.channels.BundleTilesStore
-import org.mozilla.tv.firefox.focus.FocusRepo
 import org.mozilla.tv.firefox.navigationoverlay.NavigationOverlayViewModel
 import org.mozilla.tv.firefox.channels.ChannelDetails
 import org.mozilla.tv.firefox.channels.ChannelRepo
@@ -49,7 +48,6 @@ class PinnedTileTest {
     }
 
     @MockK private lateinit var sessionRepo: SessionRepo
-    @MockK private lateinit var focusRepo: FocusRepo
     @MockK private lateinit var channelRepo: ChannelRepo
     @MockK private lateinit var pinnedTileImageUtilWrapper: PinnedTileImageUtilWrapper
     @MockK private lateinit var formattedDomainWrapper: FormattedDomainWrapper
@@ -63,8 +61,6 @@ class PinnedTileTest {
     @Before
     fun setUp() {
         MockKAnnotations.init(this)
-        every { focusRepo.focusUpdate } answers { Observable.empty() }
-        every { focusRepo.defaultViewAfterScreenChange } answers { Observable.empty() }
         every { sessionRepo.legacyState } answers { MutableLiveData() }
         every { pinnedTileImageUtilWrapper.generatePinnedTilePlaceholder(any()) } answers { drawable }
         every { formattedDomainWrapper.format(any(), any(), any()) } answers { "" }
@@ -83,13 +79,12 @@ class PinnedTileTest {
         val appContext: Context = ApplicationProvider.getApplicationContext()
         pinnedTileRepo = PinnedTileRepo(appContext, BundleTilesStore(appContext))
         overlayVm = NavigationOverlayViewModel(
-                sessionRepo,
-                focusRepo,
-                pinnedTileImageUtilWrapper,
-                formattedDomainWrapper,
-                channelTitles,
-                channelRepo,
-                pinnedTileRepo
+            sessionRepo,
+            pinnedTileImageUtilWrapper,
+            formattedDomainWrapper,
+            channelTitles,
+            channelRepo,
+            pinnedTileRepo
         )
         testObserver = overlayVm.pinnedTiles.test()
     }

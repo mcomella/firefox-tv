@@ -9,11 +9,9 @@ import androidx.lifecycle.ViewModel
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
-import org.mozilla.tv.firefox.ScreenControllerStateMachine.ActiveScreen
 import org.mozilla.tv.firefox.channels.ChannelDetails
 import org.mozilla.tv.firefox.channels.ChannelRepo
 import org.mozilla.tv.firefox.ext.map
-import org.mozilla.tv.firefox.focus.FocusRepo
 import org.mozilla.tv.firefox.channels.pinnedtile.PinnedTileImageUtilWrapper
 import org.mozilla.tv.firefox.channels.pinnedtile.PinnedTileRepo
 import org.mozilla.tv.firefox.session.SessionRepo
@@ -30,18 +28,12 @@ class ChannelTitles(
 
 class NavigationOverlayViewModel(
     sessionRepo: SessionRepo,
-    focusRepo: FocusRepo,
     imageUtilityWrapper: PinnedTileImageUtilWrapper,
     formattedDomainWrapper: FormattedDomainWrapper,
     channelTitles: ChannelTitles,
     channelRepo: ChannelRepo,
     private val pinnedTileRepo: PinnedTileRepo
 ) : ViewModel() {
-
-    val focusUpdate = focusRepo.focusUpdate
-    val focusRequests: Observable<Int> = focusRepo.defaultViewAfterScreenChange
-            .filter { it.second == ActiveScreen.NAVIGATION_OVERLAY }
-            .map { it.first.viewId }
 
     @Suppress("DEPRECATION")
     val viewIsSplit: LiveData<Boolean> = sessionRepo.legacyState.map {

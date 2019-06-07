@@ -56,7 +56,6 @@ class ViewModelFactory(
 
             NavigationOverlayViewModel::class.java -> NavigationOverlayViewModel(
                 serviceLocator.sessionRepo,
-                serviceLocator.focusRepo,
                 serviceLocator.screenshotStoreWrapper,
                 serviceLocator.formattedDomainWrapper,
                 ChannelTitles(
@@ -82,9 +81,7 @@ class ViewModelFactory(
                 hintContentFactory.getOpenMenuHint()
             ) as T
 
-            WebRenderViewModel::class.java -> WebRenderViewModel(
-                serviceLocator.focusRepo
-            ) as T
+            WebRenderViewModel::class.java -> WebRenderViewModel() as T
 
         // This class needs to either return a ViewModel or throw, so we have no good way of silently handling
         // failures in production. However a failure could only occur if code requests a VM that we have not added

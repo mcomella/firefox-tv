@@ -202,10 +202,6 @@ class NavigationOverlayFragment : Fragment() {
 
     override fun onStart() {
         super.onStart()
-        observeFocusState()
-            .addTo(compositeDisposable)
-        observeRequestFocus()
-            .addTo(compositeDisposable)
         observePinnedTiles()
             .addTo(compositeDisposable)
         observePinnedTileRemoval()
@@ -241,28 +237,6 @@ class NavigationOverlayFragment : Fragment() {
 
     private fun exitFirefox() {
         activity!!.moveTaskToBack(true)
-    }
-
-    /**
-     * observeRequestFocus() handles screen transition request focus
-     */
-    private fun observeRequestFocus(): Disposable {
-        return navigationOverlayViewModel.focusRequests
-            .subscribe { viewId ->
-                val viewToFocus = rootView?.findViewById<View>(viewId)
-                viewToFocus?.requestFocus()
-            }
-    }
-
-    private fun observeFocusState(): Disposable {
-        return navigationOverlayViewModel.focusUpdate
-            .subscribe { focusState ->
-                rootView?.findViewById<View>(focusState.focusNode.viewId)?.let { focusedView ->
-                    focusState.focusNode.updateViewNodeTree(focusedView)
-                    if (!focusState.focused)
-                        focusedView.requestFocus()
-                }
-            }
     }
 
     private fun observePinnedTiles(): Disposable {
