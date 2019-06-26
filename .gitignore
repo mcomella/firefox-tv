@@ -58,5 +58,6 @@ Screengrabfile
 # Secrets
 .sentry_dsn_*
 .pocket_key_*
+.pocket_listen_key_*
 .firebase_token*
 .bitbar_token*
