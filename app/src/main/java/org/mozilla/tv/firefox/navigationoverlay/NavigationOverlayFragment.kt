@@ -129,6 +129,7 @@ class NavigationOverlayFragment : Fragment() {
     private var channelReferenceContainer: ChannelReferenceContainer? = null // references a Context, must be nulled.
     private val pinnedTileChannel: DefaultChannel get() = channelReferenceContainer!!.pinnedTileChannel
     private val pocketChannel: DefaultChannel get() = channelReferenceContainer!!.pocketChannel
+    private val pocketListenChannel: DefaultChannel get() = channelReferenceContainer!!.pocketListenChannel
     private val newsChannel: DefaultChannel get() = channelReferenceContainer!!.newsChannel
     private val sportsChannel: DefaultChannel get() = channelReferenceContainer!!.sportsChannel
     private val musicChannel: DefaultChannel get() = channelReferenceContainer!!.musicChannel
@@ -193,6 +194,7 @@ class NavigationOverlayFragment : Fragment() {
 
         channelReferenceContainer = ChannelReferenceContainer(channelsContainer, createChannelFactory()).also {
             channelsContainer.addView(it.pocketChannel.channelContainer)
+            channelsContainer.addView(it.pocketListenChannel.channelContainer)
             channelsContainer.addView(it.pinnedTileChannel.channelContainer)
             channelsContainer.addView(it.newsChannel.channelContainer)
             channelsContainer.addView(it.sportsChannel.channelContainer)
@@ -214,6 +216,8 @@ class NavigationOverlayFragment : Fragment() {
             .forEach { compositeDisposable.add(it) }
         observePocket()
             .forEach { compositeDisposable.add(it) }
+        observePocketListenTiles()
+            .let { compositeDisposable.add(it) }
         observeTvGuideTiles()
             .forEach { compositeDisposable.add(it) }
         HintBinder.bindHintsToView(hintViewModel, hintBarContainer, animate = false)
@@ -334,6 +338,11 @@ class NavigationOverlayFragment : Fragment() {
         return defaultObserveChannelDetails(pocketChannel, pocketDetails)
     }
 
+    private fun observePocketListenTiles(): Disposable {
+        val pocketListenDetails = navigationOverlayViewModel.pocketListenArticles
+        return defaultObserveChannelDetails(pocketListenChannel, pocketListenDetails)
+    }
+
     private fun observeTvGuideTiles(): List<Disposable> {
         return listOf(
             defaultObserveChannelDetails(newsChannel, navigationOverlayViewModel.newsChannel),
@@ -452,6 +461,12 @@ private class ChannelReferenceContainer(
         parent = channelContainerView,
         id = R.id.pocket_channel,
         channelConfig = ChannelConfig.getPocketConfig(channelContainerView.context)
+    )
+
+    val pocketListenChannel = channelFactory.createChannel(
+        parent = channelContainerView,
+        id = R.id.pocket_listen_channel,
+        channelConfig = ChannelConfig.getPocketListenConfig()
     )
 
     val pinnedTileChannel = channelFactory.createChannel(

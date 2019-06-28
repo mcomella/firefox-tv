@@ -37,6 +37,12 @@ data class ChannelConfig(
                 enabledInLocales = KillswitchLocales.ActiveIn(Locale.ENGLISH)
         )
 
+        // TODO: implement final.
+        fun getPocketListenConfig(): ChannelConfig = ChannelConfig(
+            isEnabledInCurrentExperiment = true,
+            enabledInLocales = KillswitchLocales.All
+        )
+
         fun getPinnedTileConfig(context: Context): ChannelConfig = ChannelConfig(
             onClickTelemetry = { tile -> TELEMETRY.homeTileClickEvent(context, tile) },
             itemsMayBeRemoved = true,
