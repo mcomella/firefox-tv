@@ -66,7 +66,8 @@ class ViewModelFactory(
                     food = resources.getString(R.string.food_channel_title)
                 ),
                 serviceLocator.channelRepo,
-                serviceLocator.pinnedTileRepo
+                serviceLocator.pinnedTileRepo,
+                serviceLocator.pocketListenRepo
             ) as T
 
             OverlayHintViewModel::class.java -> OverlayHintViewModel(

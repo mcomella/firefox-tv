@@ -11,6 +11,7 @@ import androidx.test.core.app.ApplicationProvider
 import io.mockk.MockKAnnotations
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
+import io.mockk.mockk
 import io.reactivex.Observable
 import io.reactivex.android.plugins.RxAndroidPlugins
 import io.reactivex.observers.TestObserver
@@ -27,6 +28,7 @@ import org.mozilla.tv.firefox.navigationoverlay.NavigationOverlayViewModel
 import org.mozilla.tv.firefox.channels.ChannelDetails
 import org.mozilla.tv.firefox.channels.ChannelRepo
 import org.mozilla.tv.firefox.navigationoverlay.ChannelTitles
+import org.mozilla.tv.firefox.pocket.PocketListenRepo
 import org.mozilla.tv.firefox.session.SessionRepo
 import org.mozilla.tv.firefox.utils.FormattedDomainWrapper
 import org.robolectric.RobolectricTestRunner
@@ -59,6 +61,7 @@ class PinnedTileTest {
     @MockK private lateinit var drawable: Drawable
     @MockK private lateinit var file: File
     private lateinit var overlayVm: NavigationOverlayViewModel
+    private lateinit var pocketListenRepo: PocketListenRepo
     private lateinit var pinnedTileRepo: PinnedTileRepo
     private lateinit var testObserver: TestObserver<ChannelDetails>
     private lateinit var channelTitles: ChannelTitles
@@ -86,13 +89,15 @@ class PinnedTileTest {
         )
 
         val appContext: Context = ApplicationProvider.getApplicationContext()
+        pocketListenRepo = PocketListenRepo(appContext, { true }, mockk())
         pinnedTileRepo = PinnedTileRepo(appContext)
         overlayVm = NavigationOverlayViewModel(
                 sessionRepo,
                 focusRepo,
                 channelTitles,
                 channelRepo,
-                pinnedTileRepo
+                pinnedTileRepo,
+                pocketListenRepo
         )
         testObserver = overlayVm.pinnedTiles.test()
     }

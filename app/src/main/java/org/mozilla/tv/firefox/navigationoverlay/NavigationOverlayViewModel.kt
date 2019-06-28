@@ -13,6 +13,7 @@ import org.mozilla.tv.firefox.channels.ChannelRepo
 import org.mozilla.tv.firefox.ext.map
 import org.mozilla.tv.firefox.focus.FocusRepo
 import org.mozilla.tv.firefox.channels.pinnedtile.PinnedTileRepo
+import org.mozilla.tv.firefox.pocket.PocketListenRepo
 import org.mozilla.tv.firefox.session.SessionRepo
 import org.mozilla.tv.firefox.utils.URLs
 
@@ -29,7 +30,8 @@ class NavigationOverlayViewModel(
     focusRepo: FocusRepo,
     channelTitles: ChannelTitles,
     channelRepo: ChannelRepo,
-    private val pinnedTileRepo: PinnedTileRepo
+    private val pinnedTileRepo: PinnedTileRepo,
+    pocketListenRepo: PocketListenRepo
 ) : ViewModel() {
 
     val focusUpdate = focusRepo.focusUpdate
@@ -57,4 +59,7 @@ class NavigationOverlayViewModel(
     fun shouldBeDisplayed(channelDetails: Observable<ChannelDetails>): Observable<Boolean> =
         channelDetails.map { it.tileList.isNotEmpty() }
             .distinctUntilChanged()
+
+    val pocketListenArticles: Observable<ChannelDetails> = pocketListenRepo.listenTiles
+        .map { ChannelDetails(title = "Pocket Listen", tileList = it) } // TODO: final String & in strings.xml.
 }
