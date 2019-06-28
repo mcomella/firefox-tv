@@ -19,10 +19,11 @@ class DefaultChannelFactory(
     fun createChannel(
         parent: ViewGroup,
         id: Int? = null,
-        channelConfig: ChannelConfig
+        channelConfig: ChannelConfig,
+        isPocketListen: Boolean = false
     ): DefaultChannel {
         val context = parent.context
-        val channelAdapter = DefaultChannelAdapter(context, loadUrl, onTileFocused, channelConfig)
+        val channelAdapter = DefaultChannelAdapter(context, loadUrl, onTileFocused, channelConfig, isPocketListen)
 
         val containerView = LayoutInflater.from(context).inflate(R.layout.default_channel, parent, false) as KillswitchLayout
         containerView.channelTileContainer.apply {

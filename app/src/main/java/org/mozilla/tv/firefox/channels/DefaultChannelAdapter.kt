@@ -40,7 +40,8 @@ class DefaultChannelAdapter(
     private val context: Context,
     private val loadUrl: (String) -> Unit,
     private val onTileFocused: (() -> Unit)?,
-    private val channelConfig: ChannelConfig
+    private val channelConfig: ChannelConfig,
+    private val isPocketListen: Boolean
 ) : ListAdapter<ChannelTile, DefaultChannelTileViewHolder>(DIFF_CALLBACK) {
 
     private val _removeEvents: Subject<ChannelTile> = PublishSubject.create<ChannelTile>()
@@ -80,8 +81,14 @@ class DefaultChannelAdapter(
             }
 
             itemView.setOnClickListener {
-                loadUrl(tile.url)
-                channelConfig.onClickTelemetry?.invoke(tile)
+                // HACK: allow Pocket Listen to have different click behavior.
+                // TODO: implement this properly.
+                if (!isPocketListen) {
+                    loadUrl(tile.url)
+                    channelConfig.onClickTelemetry?.invoke(tile)
+                } else {
+                    throw NotImplementedError("Pocket Listen click behavior")
+                }
             }
 
             if (channelConfig.itemsMayBeRemoved) {
