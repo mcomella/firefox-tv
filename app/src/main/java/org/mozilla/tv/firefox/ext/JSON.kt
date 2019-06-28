@@ -7,6 +7,7 @@ package org.mozilla.tv.firefox.ext
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
+import kotlin.math.min
 
 /**
  * Map over the JSONArray, removing null values after [transform] and ignoring invalid data.
@@ -22,4 +23,23 @@ inline fun <R : Any> JSONArray.flatMapObj(transform: (JSONObject) -> R?): List<R
     }
 
     return transformedResults
+}
+
+/**
+ * Returns a [JSONArray] containing first [n] elements.
+ *
+ * Returning List would be more consistent with the framework but then we'd lose
+ * valuable [JSONArray] functions.
+ *
+ * @throws IllegalArgumentException if [n] is negative.
+ *
+ * @see Collection.take
+ */
+fun JSONArray.take(n: Int): JSONArray {
+    require(n >= 0) { "n must not be negative" }
+    val returnValue = JSONArray()
+    for (i in 0 until min(this.length(), n)) {
+        returnValue.put(this.get(i))
+    }
+    return returnValue
 }
