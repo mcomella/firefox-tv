@@ -86,6 +86,10 @@
         <activity android:name=".channels.ChannelOnboardingActivity"
             android:theme="@style/AppTheme.Transparent"/>
 
+        <activity android:name=".pocket.PocketAudioPlayerActivity"
+            android:theme="@style/AppTheme"
+            android:exported="false"/>
+
         <!-- Allows MediaSessionCallbacks to be called while a voice command is active. Without
              this, the video pauses for the voice command, resumes when the voice command ends, and
              then MediaSessionCallbacks can be executed (e.g. pausing the video again for a pause
