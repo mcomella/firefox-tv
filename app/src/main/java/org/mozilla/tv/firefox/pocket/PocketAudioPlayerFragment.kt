@@ -14,6 +14,8 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import kotlinx.android.synthetic.main.fragment_pocket_audio_player.view.*
 import org.mozilla.tv.firefox.R
+import org.mozilla.tv.firefox.ext.serviceLocator
+import org.mozilla.tv.firefox.utils.PicassoWrapper
 
 /**
  * A player that allows the user to listen to Pocket content.
@@ -43,6 +45,8 @@ class PocketAudioPlayerFragment : Fragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val rootView = inflater.inflate(R.layout.fragment_pocket_audio_player, container, false)
 
+        rootView.titleView.text = audioFile.title
+
         rootView.playPauseButton.setOnClickListener {
             if (mediaPlayer.isPlaying) {
                 mediaPlayer.pause()
@@ -50,6 +54,8 @@ class PocketAudioPlayerFragment : Fragment() {
                 mediaPlayer.start()
             }
         }
+
+        PicassoWrapper.client.load(audioFile.imageSrc).into(rootView.coverImageView)
 
         return rootView
     }
