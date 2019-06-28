@@ -41,7 +41,8 @@ class DefaultChannelAdapter(
     private val loadUrl: (String) -> Unit,
     private val onTileFocused: (() -> Unit)?,
     private val channelConfig: ChannelConfig,
-    private val isPocketListen: Boolean
+    private val isPocketListen: Boolean,
+    private val startPocketListenActivity: (ChannelTile) -> Unit
 ) : ListAdapter<ChannelTile, DefaultChannelTileViewHolder>(DIFF_CALLBACK) {
 
     private val _removeEvents: Subject<ChannelTile> = PublishSubject.create<ChannelTile>()
@@ -87,7 +88,7 @@ class DefaultChannelAdapter(
                     loadUrl(tile.url)
                     channelConfig.onClickTelemetry?.invoke(tile)
                 } else {
-                    throw NotImplementedError("Pocket Listen click behavior")
+                    startPocketListenActivity(tile)
                 }
             }
 

@@ -5,6 +5,7 @@
 package org.mozilla.tv.firefox.navigationoverlay
 
 import android.content.Context
+import android.content.Intent
 import android.graphics.Rect
 import android.graphics.drawable.Drawable
 import android.os.Bundle
@@ -48,8 +49,12 @@ import org.mozilla.tv.firefox.channels.ChannelConfig
 import org.mozilla.tv.firefox.channels.ChannelDetails
 import org.mozilla.tv.firefox.channels.DefaultChannel
 import org.mozilla.tv.firefox.channels.DefaultChannelFactory
+import org.mozilla.tv.firefox.channels.ImageSetStrategy
 import org.mozilla.tv.firefox.channels.SettingsChannelAdapter
 import org.mozilla.tv.firefox.channels.SettingsScreen
+import org.mozilla.tv.firefox.pocket.PocketAudioPlayerActivity
+import org.mozilla.tv.firefox.pocket.PocketAudioPlayerFile
+import org.mozilla.tv.firefox.pocket.PocketAudioPlayerFragment
 import org.mozilla.tv.firefox.pocket.PocketViewModel
 import org.mozilla.tv.firefox.telemetry.MenuInteractionMonitor
 import org.mozilla.tv.firefox.telemetry.UrlTextInputLocation
@@ -387,6 +392,19 @@ class NavigationOverlayFragment : Fragment() {
 
                     canShowUnpinToast = false
                 }
+            },
+            startPocketListenActivity = { tile ->
+                val file = PocketAudioPlayerFile(
+                    title = tile.title,
+                    imageSrc = (tile.setImage as ImageSetStrategy.ByPath).path, // TODO bad access.
+                    audioPath = tile.url
+                )
+
+                val intent = Intent(context, PocketAudioPlayerActivity::class.java).apply {
+                    putExtra(PocketAudioPlayerFragment.KEY_AUDIO_FILE, file)
+                }
+
+                startActivity(intent)
             }
     )
 

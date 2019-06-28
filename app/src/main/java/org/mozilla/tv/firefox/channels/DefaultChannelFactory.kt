@@ -13,7 +13,8 @@ import org.mozilla.tv.firefox.architecture.KillswitchLayout
 // todo: kdoc
 class DefaultChannelFactory(
     private val loadUrl: (String) -> Unit,
-    val onTileFocused: (() -> Unit)
+    val onTileFocused: (() -> Unit),
+    private val startPocketListenActivity: (ChannelTile) -> Unit
 ) {
 
     fun createChannel(
@@ -23,7 +24,8 @@ class DefaultChannelFactory(
         isPocketListen: Boolean = false
     ): DefaultChannel {
         val context = parent.context
-        val channelAdapter = DefaultChannelAdapter(context, loadUrl, onTileFocused, channelConfig, isPocketListen)
+        val channelAdapter = DefaultChannelAdapter(context, loadUrl, onTileFocused, channelConfig, isPocketListen,
+            startPocketListenActivity)
 
         val containerView = LayoutInflater.from(context).inflate(R.layout.default_channel, parent, false) as KillswitchLayout
         containerView.channelTileContainer.apply {
