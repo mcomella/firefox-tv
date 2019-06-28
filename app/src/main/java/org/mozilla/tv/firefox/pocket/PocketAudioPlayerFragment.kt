@@ -12,7 +12,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import kotlinx.android.synthetic.main.fragment_audio_player.view.*
+import kotlinx.android.synthetic.main.fragment_pocket_audio_player.view.*
 import org.mozilla.tv.firefox.R
 
 /**
@@ -41,7 +41,7 @@ class PocketAudioPlayerFragment : Fragment() {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val rootView = inflater.inflate(R.layout.fragment_audio_player, container, false)
+        val rootView = inflater.inflate(R.layout.fragment_pocket_audio_player, container, false)
 
         rootView.playPauseButton.setOnClickListener {
             if (mediaPlayer.isPlaying) {
