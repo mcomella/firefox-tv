@@ -10,7 +10,10 @@ package org.mozilla.tv.firefox.utils
 
 import android.app.Application
 import androidx.lifecycle.MutableLiveData
+import mozilla.components.lib.fetch.okhttp.OkHttpClient
+import mozilla.components.service.pocket.PocketListenEndpoint
 import mozilla.components.support.base.observer.Consumable
+import org.mozilla.tv.firefox.BuildConfig
 import org.mozilla.tv.firefox.ScreenController
 import org.mozilla.tv.firefox.ValidatedIntentData
 import org.mozilla.tv.firefox.architecture.ViewModelFactory
@@ -25,6 +28,7 @@ import org.mozilla.tv.firefox.channels.ChannelRepo
 import org.mozilla.tv.firefox.channels.pinnedtile.PinnedTileImageUtilWrapper
 import org.mozilla.tv.firefox.channels.pinnedtile.PinnedTileRepo
 import org.mozilla.tv.firefox.pocket.PocketEndpointRaw
+import org.mozilla.tv.firefox.pocket.PocketListenRepo
 import org.mozilla.tv.firefox.pocket.PocketVideoFetchScheduler
 import org.mozilla.tv.firefox.pocket.PocketVideoJSONValidator
 import org.mozilla.tv.firefox.pocket.PocketVideoParser
@@ -73,6 +77,12 @@ open class ServiceLocator(val app: Application) {
     private val isPocketEnabledByLocale = { LocaleManager.getInstance().currentLanguageIsEnglish(app) } // Pocket is en-US only.
     private val pocketVideoParser by lazy { PocketVideoParser }
     private val pocketVideoJSONValidator by lazy { PocketVideoJSONValidator(pocketVideoParser) }
+    private val fetchClient by lazy { OkHttpClient(OkHttpWrapper.client, context = app) }
+    private val pocketListenEndpoint by lazy { PocketListenEndpoint.newInstance(
+        fetchClient,
+        BuildConfig.POCKET_LISTEN_KEY,
+        "FirefoxForFireTV ${BuildConfig.VERSION_NAME}" // TODO: final user agent.
+    ) }
 
     val intentLiveData by lazy { MutableLiveData<Consumable<ValidatedIntentData?>>() }
     val fretboardProvider: FretboardProvider by lazy { FretboardProvider(app) }
@@ -93,6 +103,7 @@ open class ServiceLocator(val app: Application) {
     val pocketEndpointRaw by lazy { PocketEndpointRaw(appVersion, buildConfigDerivables.globalPocketVideoEndpoint) }
     val pocketVideoStore by lazy { PocketVideoStore(app, app.assets, pocketVideoJSONValidator) }
     val pocketVideoFetchScheduler by lazy { PocketVideoFetchScheduler(isPocketEnabledByLocale) }
+    val pocketListenRepo by lazy { PocketListenRepo(app, isPocketEnabledByLocale, pocketListenEndpoint) }
 
     // These open vals are overridden in testing
     open val frameworkRepo = FrameworkRepo.newInstanceAndInit(app.getAccessibilityManager())
