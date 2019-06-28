@@ -14,7 +14,6 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import kotlinx.android.synthetic.main.fragment_pocket_audio_player.view.*
 import org.mozilla.tv.firefox.R
-import org.mozilla.tv.firefox.ext.serviceLocator
 import org.mozilla.tv.firefox.utils.PicassoWrapper
 
 /**
@@ -53,6 +52,8 @@ class PocketAudioPlayerFragment : Fragment() {
             } else {
                 mediaPlayer.start()
             }
+
+            updatePlayPauseAsset() // must be called after play/pause state change.
         }
 
         PicassoWrapper.client.load(audioFile.imageSrc).into(rootView.coverImageView)
@@ -63,11 +64,18 @@ class PocketAudioPlayerFragment : Fragment() {
     override fun onStart() {
         super.onStart()
         mediaPlayer.start()
+        updatePlayPauseAsset()
     }
 
     override fun onStop() {
         super.onStop()
         mediaPlayer.stop()
+    }
+
+    private fun updatePlayPauseAsset() {
+        // TODO: if we use these play/pause assets, we need to add apache license to their files & in project.
+        val newResource = if (mediaPlayer.isPlaying) R.drawable.pause else R.drawable.play
+        view!!.playPauseButton.setImageResource(newResource)
     }
 
     companion object {
