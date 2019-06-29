@@ -11,14 +11,29 @@
         android:layout_height="match_parent"
         android:background="@color/browser_overlay_background">
 
+    <!-- TODO: correct image sizing and such. Probably don't want skew with fitXY. -->
     <ImageView
             android:id="@+id/coverImageView"
-            android:layout_width="0dp"
+            android:layout_width="450dp"
             android:layout_height="240dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            android:layout_margin="40dp"/>
+            android:layout_margin="40dp"
+            android:scaleType="fitXY"
+            android:contentDescription="Image downloaded from article page"
+            tools:src="@drawable/tv_homescreen_onboarding"/>
+
+    <TextView
+            android:id="@+id/durationView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toEndOf="@id/coverImageView"
+            app:layout_constraintBottom_toBottomOf="@+id/coverImageView"
+            android:padding="4dp"
+            android:background="#99000000"
+            android:textStyle="bold"
+            tools:text="4:10"/>
 
     <TextView
             android:id="@+id/titleView"

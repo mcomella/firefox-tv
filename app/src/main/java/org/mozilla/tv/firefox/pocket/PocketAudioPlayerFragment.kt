@@ -15,6 +15,7 @@ import androidx.fragment.app.Fragment
 import kotlinx.android.synthetic.main.fragment_pocket_audio_player.view.*
 import org.mozilla.tv.firefox.R
 import org.mozilla.tv.firefox.utils.PicassoWrapper
+import java.util.concurrent.TimeUnit
 
 /**
  * A player that allows the user to listen to Pocket content.
@@ -58,6 +59,8 @@ class PocketAudioPlayerFragment : Fragment() {
 
         PicassoWrapper.client.load(audioFile.imageSrc).into(rootView.coverImageView)
 
+        rootView.durationView.text = getDurationString(mediaPlayer.duration.toLong())
+
         return rootView
     }
 
@@ -76,6 +79,13 @@ class PocketAudioPlayerFragment : Fragment() {
         // TODO: if we use these play/pause assets, we need to add apache license to their files & in project.
         val newResource = if (mediaPlayer.isPlaying) R.drawable.pause else R.drawable.play
         view!!.playPauseButton.setImageResource(newResource)
+    }
+
+    private fun getDurationString(durationMillis: Long): String {
+        // TODO: is this localized? we're not localizing yet though.
+        val minutes = TimeUnit.MILLISECONDS.toMinutes(durationMillis)
+        val seconds = TimeUnit.MILLISECONDS.toSeconds(durationMillis) % 60
+        return "$minutes:$seconds"
     }
 
     companion object {
