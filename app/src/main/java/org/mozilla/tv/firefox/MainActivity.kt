@@ -19,7 +19,6 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.addTo
 import io.sentry.Sentry
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.android.synthetic.main.firefox_progress_bar.*
 import kotlinx.android.synthetic.main.overlay_debug.debugLog
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -185,7 +184,7 @@ class MainActivity : LocaleAwareAppCompatActivity(), OnUrlEnteredListener, Media
         rootView.viewTreeObserver.addOnGlobalFocusChangeListener(serviceLocator.focusRepo)
 
         serviceLocator.sessionRepo.state.map { it.currentUrl }.distinctUntilChanged().subscribe {
-            if (it.startsWith(FxaIntegration.REDIRECT_URI)) {
+            if (it.startsWith(FxaRepo.REDIRECT_URI)) {
                 val uri = Uri.parse(it)
                 val code = uri.getQueryParameter("code")
                 val state = uri.getQueryParameter("state")
