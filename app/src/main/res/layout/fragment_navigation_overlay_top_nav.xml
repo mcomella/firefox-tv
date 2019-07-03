@@ -49,6 +49,13 @@
         android:layout_weight="1" />
 
     <ImageButton
+        android:id="@+id/syncSetup"
+        style="@style/NavigationButton"
+        android:src="@drawable/lb_ic_cc"
+        android:contentDescription="@null"/>
+
+
+    <ImageButton
         android:id="@+id/exitButton"
         style="@style/NavigationButton"
         android:src="@drawable/ic_home"

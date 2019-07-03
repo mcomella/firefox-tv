@@ -339,7 +339,7 @@ open class TelemetryIntegration protected constructor(
             NavigationEvent.SETTINGS_DATA_COLLECTION, NavigationEvent.SETTINGS_CLEAR_COOKIES -> return
 
             // Load is handled in a separate event
-            NavigationEvent.LOAD_URL, NavigationEvent.LOAD_TILE -> return
+            NavigationEvent.LOAD_URL, NavigationEvent.LOAD_TILE, NavigationEvent.SYNC_SETUP -> return // todo
         }
         TelemetryEvent.create(Category.ACTION, Method.CLICK, Object.MENU, telemetryValue).queue()
     }

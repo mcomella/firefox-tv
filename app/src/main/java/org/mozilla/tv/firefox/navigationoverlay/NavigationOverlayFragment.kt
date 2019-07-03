@@ -33,7 +33,10 @@ import kotlinx.android.synthetic.main.fragment_navigation_overlay_orig.navUrlInp
 import kotlinx.android.synthetic.main.fragment_navigation_overlay_orig.settingsTileContainer
 import kotlinx.android.synthetic.main.fragment_navigation_overlay_top_nav.exitButton
 import kotlinx.android.synthetic.main.hint_bar.hintBarContainer
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 import org.mozilla.tv.firefox.MainActivity
 import org.mozilla.tv.firefox.R
 import org.mozilla.tv.firefox.architecture.FirefoxViewModelProviders
@@ -50,11 +53,13 @@ import org.mozilla.tv.firefox.channels.DefaultChannel
 import org.mozilla.tv.firefox.channels.DefaultChannelFactory
 import org.mozilla.tv.firefox.channels.SettingsChannelAdapter
 import org.mozilla.tv.firefox.channels.SettingsScreen
+import org.mozilla.tv.firefox.ext.requireWebRenderComponents
 import org.mozilla.tv.firefox.pocket.PocketViewModel
 import org.mozilla.tv.firefox.telemetry.MenuInteractionMonitor
 import org.mozilla.tv.firefox.telemetry.UrlTextInputLocation
 import org.mozilla.tv.firefox.utils.ServiceLocator
 import org.mozilla.tv.firefox.widget.InlineAutocompleteEditText
+import org.mozilla.tv.firefox.widget.InlineAutocompleteEditText.AutocompleteResult.*
 import java.lang.ref.WeakReference
 
 private const val SHOW_UNPIN_TOAST_COUNTER_PREF = "show_upin_toast_counter"
@@ -63,7 +68,7 @@ private const val MAX_UNPIN_TOAST_COUNT = 3
 private val uiHandler = Handler(Looper.getMainLooper())
 
 enum class NavigationEvent {
-    BACK, FORWARD, RELOAD, LOAD_URL, LOAD_TILE, TURBO, PIN_ACTION, DESKTOP_MODE, EXIT_FIREFOX,
+    BACK, FORWARD, RELOAD, LOAD_URL, LOAD_TILE, TURBO, PIN_ACTION, DESKTOP_MODE, EXIT_FIREFOX, SYNC_SETUP,
     SETTINGS_DATA_COLLECTION, SETTINGS_CLEAR_COOKIES;
 
     companion object {
@@ -74,6 +79,7 @@ enum class NavigationEvent {
             R.id.turboButton -> TURBO
             R.id.pinButton -> PIN_ACTION
             R.id.desktopModeButton -> DESKTOP_MODE
+            R.id.syncSetup -> SYNC_SETUP
             R.id.exitButton -> EXIT_FIREFOX
             else -> null
         }
@@ -114,6 +120,18 @@ class NavigationOverlayFragment : Fragment() {
             NavigationEvent.SETTINGS_CLEAR_COOKIES -> {
                 serviceLocator.screenController.showSettingsScreen(fragmentManager!!, SettingsScreen.CLEAR_COOKIES)
             }
+
+            NavigationEvent.SYNC_SETUP -> {
+                // todo: clean me!
+                GlobalScope.launch(Dispatchers.Main) {
+                    serviceLocator.fxaIntegration.accountManager.initAsync()
+                    val authUrl = serviceLocator.fxaIntegration.accountManager.beginAuthenticationAsync().await()
+                    // todo: can be null? Why? No docs. :(
+                    (activity as MainActivity).onTextInputUrlEntered(authUrl!!, emptyResult(), UrlTextInputLocation.MENU)
+                    context?.serviceLocator?.screenController?.showNavigationOverlay(fragmentManager, false)
+                }
+            }
+
             NavigationEvent.TURBO, NavigationEvent.PIN_ACTION, NavigationEvent.DESKTOP_MODE, NavigationEvent.BACK,
             NavigationEvent.FORWARD, NavigationEvent.RELOAD, NavigationEvent.EXIT_FIREFOX -> { /* not handled by this object */ }
         }

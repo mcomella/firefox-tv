@@ -8,15 +8,22 @@ package org.mozilla.tv.firefox
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.util.AttributeSet
 import android.util.Log
 import android.view.KeyEvent
 import android.view.View
 import androidx.lifecycle.Observer
+import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.rxkotlin.addTo
 import io.sentry.Sentry
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.firefox_progress_bar.*
 import kotlinx.android.synthetic.main.overlay_debug.debugLog
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import mozilla.components.browser.session.Session
 import mozilla.components.concept.engine.EngineView
 import mozilla.components.support.base.observer.Consumable
@@ -50,6 +57,8 @@ class MainActivity : LocaleAwareAppCompatActivity(), OnUrlEnteredListener, Media
     // There should be at most one MediaSession per process, hence it's in MainActivity.
     // We crash if we init MediaSession at init time, hence lateinit.
     override lateinit var videoVoiceCommandMediaSession: VideoVoiceCommandMediaSession
+
+    private val compositeDisposable = CompositeDisposable()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         // We override onSaveInstanceState to not save state (for handling Clear Data), so startup flow
@@ -174,12 +183,32 @@ class MainActivity : LocaleAwareAppCompatActivity(), OnUrlEnteredListener, Media
         // TODO when MainActivity has a VM, route this call through it
         serviceLocator.pocketRepo.updatePocketFromStore()
         rootView.viewTreeObserver.addOnGlobalFocusChangeListener(serviceLocator.focusRepo)
+
+        serviceLocator.sessionRepo.state.map { it.currentUrl }.distinctUntilChanged().subscribe {
+            if (it.startsWith(FxaIntegration.REDIRECT_URI)) {
+                val uri = Uri.parse(it)
+                val code = uri.getQueryParameter("code")
+                val state = uri.getQueryParameter("state")
+                if (code != null && state != null) {
+                    GlobalScope.launch(Dispatchers.Main) {
+                        serviceLocator.fxaIntegration.accountManager.finishAuthenticationAsync(code, state)
+                            .await() // why await?
+                        Log.e("lol", "async auth! $code $state")
+                        // todo: called twice? all urls seem to be hit twice. deduplicate. i guess state updates even if url doesn't change.
+                    }
+                } else {
+                    Log.e("lol", "async fail!")
+                }
+            }
+        }.addTo(compositeDisposable)
     }
 
     override fun onStop() {
         super.onStop()
         TelemetryIntegration.INSTANCE.stopMainActivity()
         rootView.viewTreeObserver.removeOnGlobalFocusChangeListener(serviceLocator.focusRepo)
+
+        compositeDisposable.clear()
     }
 
     override fun onDestroy() {
