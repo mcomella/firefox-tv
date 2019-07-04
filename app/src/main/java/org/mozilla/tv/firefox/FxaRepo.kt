@@ -5,6 +5,8 @@
 package org.mozilla.tv.firefox
 
 import android.content.Context
+import android.util.Log
+import kotlinx.coroutines.Deferred
 import mozilla.appservices.fxaclient.Config
 import mozilla.components.concept.sync.AccountObserver
 import mozilla.components.concept.sync.DeviceCapability
@@ -14,12 +16,30 @@ import mozilla.components.concept.sync.Profile
 import mozilla.components.service.fxa.manager.DeviceTuple
 import mozilla.components.service.fxa.manager.FxaAccountManager
 
+//     init {
+//         // User taps sign in button
+//         val authenticationURi = accountManager.beginAuthenticationAsync().await()
+//         webView.loadUrl(authenticationUri)
+//
+//         // user does stuff in WebView
+//
+//         // on success: WebView loads our REDIRECT_URI
+//         // intercept load request if startsWith REDIRECT_URI to extract state & code from GET params (in URL)
+//         accountManager.endAuthenticationAsync(state, code).await()
+//
+//         // presumably, update FxaRepo State (onAuthenticated? leverage accountManager observers)
+//     }
+
 /**
  * TODO
  */
 class FxaRepo(
     context: Context
 ) {
+    fun beginSignIn(): Deferred<String?> {
+        return accountManager.beginAuthenticationAsync()
+    }
+
     val accountManager = FxaAccountManager(
         context,
         Config.release(CLIENT_ID, REDIRECT_URI),
@@ -31,32 +51,36 @@ class FxaRepo(
         )
     )
 
-    private val accountObserver = FirefoxAccountObserver()
+    private val accountObserver = FirefoxAccountObserver() // todo: do we need a reference?
 
     init {
         accountManager.register(accountObserver)
         // TODO: register for device events
+
+        @Suppress("DeferredResultUnused") // TODO disable button until init completes?
+        accountManager.initAsync() // todo: await necessary? done in sample
     }
 
+    // todo: encapsulate state in observable?
     private inner class FirefoxAccountObserver : AccountObserver {
         override fun onAuthenticated(account: OAuthAccount) {
-            TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+            Log.d("lol", "onAuthenticated")
         }
 
         override fun onAuthenticationProblems() {
-            TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+            Log.d("lol", "onAuthenticationProblems")
         }
 
         override fun onError(error: Exception) {
-            TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+            Log.d("lol", "onError")
         }
 
         override fun onLoggedOut() {
-            TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+            Log.d("lol", "onLoggedOut")
         }
 
         override fun onProfileUpdated(profile: Profile) {
-            TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+            Log.d("lol", "onProfileUpdated")
         }
     }
 

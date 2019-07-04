@@ -190,7 +190,7 @@ class MainActivity : LocaleAwareAppCompatActivity(), OnUrlEnteredListener, Media
                 val state = uri.getQueryParameter("state")
                 if (code != null && state != null) {
                     GlobalScope.launch(Dispatchers.Main) {
-                        serviceLocator.fxaIntegration.accountManager.finishAuthenticationAsync(code, state)
+                        serviceLocator.fxaRepo.accountManager.finishAuthenticationAsync(code, state)
                             .await() // why await?
                         Log.e("lol", "async auth! $code $state")
                         // todo: called twice? all urls seem to be hit twice. deduplicate. i guess state updates even if url doesn't change.

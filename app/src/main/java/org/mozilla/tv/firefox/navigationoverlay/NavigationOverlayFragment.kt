@@ -53,7 +53,6 @@ import org.mozilla.tv.firefox.channels.DefaultChannel
 import org.mozilla.tv.firefox.channels.DefaultChannelFactory
 import org.mozilla.tv.firefox.channels.SettingsChannelAdapter
 import org.mozilla.tv.firefox.channels.SettingsScreen
-import org.mozilla.tv.firefox.ext.requireWebRenderComponents
 import org.mozilla.tv.firefox.pocket.PocketViewModel
 import org.mozilla.tv.firefox.telemetry.MenuInteractionMonitor
 import org.mozilla.tv.firefox.telemetry.UrlTextInputLocation
@@ -121,16 +120,7 @@ class NavigationOverlayFragment : Fragment() {
                 serviceLocator.screenController.showSettingsScreen(fragmentManager!!, SettingsScreen.CLEAR_COOKIES)
             }
 
-            NavigationEvent.SYNC_SETUP -> {
-                // todo: clean me!
-                GlobalScope.launch(Dispatchers.Main) {
-                    serviceLocator.fxaIntegration.accountManager.initAsync()
-                    val authUrl = serviceLocator.fxaIntegration.accountManager.beginAuthenticationAsync().await()
-                    // todo: can be null? Why? No docs. :(
-                    (activity as MainActivity).onTextInputUrlEntered(authUrl!!, emptyResult(), UrlTextInputLocation.MENU)
-                    context?.serviceLocator?.screenController?.showNavigationOverlay(fragmentManager, false)
-                }
-            }
+            NavigationEvent.SYNC_SETUP -> serviceLocator.fxaLoginUseCase.beginSignIn()
 
             NavigationEvent.TURBO, NavigationEvent.PIN_ACTION, NavigationEvent.DESKTOP_MODE, NavigationEvent.BACK,
             NavigationEvent.FORWARD, NavigationEvent.RELOAD, NavigationEvent.EXIT_FIREFOX -> { /* not handled by this object */ }
