@@ -19,7 +19,6 @@ import org.mozilla.tv.firefox.telemetry.SentryIntegration
 import org.mozilla.tv.firefox.webrender.VisibilityLifeCycleCallback
 import org.mozilla.tv.firefox.telemetry.TelemetryIntegration
 import org.mozilla.tv.firefox.utils.BuildConstants
-import org.mozilla.tv.firefox.utils.OkHttpWrapper
 import org.mozilla.tv.firefox.utils.ServiceLocator
 import org.mozilla.tv.firefox.webrender.WebRenderComponents
 
@@ -122,7 +121,7 @@ open class FirefoxApplication : LocaleAwareApplication() {
 
     override fun onLowMemory() {
         super.onLowMemory()
-        OkHttpWrapper.onLowMemory()
+        serviceLocator.http.onLowMemory()
         serviceLocator.sessionManager.onLowMemory()
         // If you need to dump more memory, you may be able to clear the Picasso cache.
     }

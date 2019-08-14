@@ -13,6 +13,7 @@ import org.mockito.Mockito.mock
 import org.mockito.Mockito.never
 import org.mockito.Mockito.times
 import org.mockito.Mockito.verify
+import org.mozilla.tv.firefox.utils.Http
 import org.mozilla.tv.firefox.utils.ServiceLocator
 import org.robolectric.RobolectricTestRunner
 
@@ -20,11 +21,20 @@ import org.robolectric.RobolectricTestRunner
 class FirefoxApplicationTest {
 
     private lateinit var application: FirefoxApplication
+
     private lateinit var serviceLocator: ServiceLocator
+    private lateinit var sessionManager: SessionManager
+    private lateinit var http: Http
 
     @Before
     fun setUp() {
-        serviceLocator = mock(ServiceLocator::class.java)
+        sessionManager = mock(SessionManager::class.java)
+        http = mock(Http::class.java)
+
+        serviceLocator = mock(ServiceLocator::class.java).also {
+            `when`(it.sessionManager).thenReturn(sessionManager)
+            `when`(it.http).thenReturn(http)
+        }
         application = FirefoxApplication().apply {
             serviceLocator = this@FirefoxApplicationTest.serviceLocator
         }
@@ -32,11 +42,15 @@ class FirefoxApplicationTest {
 
     @Test
     fun `WHEN onLowMemory is called THEN the sessionManager's onLowMemory method is called`() {
-        val sessionManager = mock(SessionManager::class.java)
-        `when`(serviceLocator.sessionManager).thenReturn(sessionManager)
-
         verify(sessionManager, never()).onLowMemory()
         application.onLowMemory()
         verify(sessionManager, times(1)).onLowMemory()
+    }
+
+    @Test
+    fun `WHEN onLowMemory is called THEN the http's onLowMemory method is called`() {
+        verify(http, never()).onLowMemory()
+        application.onLowMemory()
+        verify(http, times(1)).onLowMemory()
     }
 }

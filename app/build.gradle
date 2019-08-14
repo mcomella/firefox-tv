@@ -136,7 +136,6 @@ dependencies {
 
     implementation "org.mozilla.components:concept-fetch:$moz_components_version"
     implementation "org.mozilla.components:lib-fetch-okhttp:$moz_components_version"
-    implementation "org.mozilla.components:lib-fetch-httpurlconnection:$moz_components_version"
     implementation "org.mozilla.components:browser-session:$moz_components_version"
     implementation "org.mozilla.components:browser-search:$moz_components_version"
     implementation "org.mozilla.components:browser-domains:$moz_components_version"

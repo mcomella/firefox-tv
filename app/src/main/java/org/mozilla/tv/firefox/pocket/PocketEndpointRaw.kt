@@ -10,7 +10,7 @@ import androidx.annotation.AnyThread
 import okhttp3.Request
 import org.mozilla.tv.firefox.BuildConfig
 import org.mozilla.tv.firefox.ext.executeAndAwait
-import org.mozilla.tv.firefox.utils.OkHttpWrapper
+import org.mozilla.tv.firefox.utils.Http
 import java.io.IOException
 import java.util.concurrent.TimeoutException
 
@@ -20,7 +20,8 @@ private const val LOGTAG = "PocketEndpointRaw"
 @Deprecated("Move to android-components implementation #1976")
 class PocketEndpointRaw(
     private val appVersion: String,
-    private val pocketGlobalVideoEndpoint: Uri?
+    private val pocketGlobalVideoEndpoint: Uri?,
+    private val http: Http
 ) {
 
     /** @return The global video recommendations as a raw JSON str or null on error. */
@@ -34,7 +35,8 @@ class PocketEndpointRaw(
             .build()
 
         val res = try {
-            OkHttpWrapper.client.newCall(req).executeAndAwait()
+            @Suppress("DEPRECATION") // This code will move to a-c: not worth fixing.
+            http.rawClient.newCall(req).executeAndAwait()
         } catch (e: IOException) {
             Log.w(LOGTAG, "getGlobalVideoRecommendations: network error")
             Log.w(LOGTAG, e)

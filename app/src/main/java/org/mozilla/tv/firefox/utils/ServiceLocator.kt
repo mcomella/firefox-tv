@@ -90,11 +90,12 @@ open class ServiceLocator(val app: Application) {
     val formattedDomainWrapper by lazy { FormattedDomainWrapper(app) }
     val channelRepo by lazy { ChannelRepo(app, screenshotStoreWrapper, formattedDomainWrapper, pinnedTileRepo) }
     @Suppress("DEPRECATION") // We need PocketEndpointRaw until we move to a-c's impl.
-    val pocketEndpointRaw by lazy { PocketEndpointRaw(appVersion, buildConfigDerivables.globalPocketVideoEndpoint) }
+    val pocketEndpointRaw by lazy { PocketEndpointRaw(appVersion, buildConfigDerivables.globalPocketVideoEndpoint, http) }
     val pocketVideoStore by lazy { PocketVideoStore(app, app.assets, pocketVideoJSONValidator) }
     val pocketVideoFetchScheduler by lazy { PocketVideoFetchScheduler(isPocketEnabledByLocale) }
     val fxaRepo by lazy { FxaRepo(app) }
     val fxaLoginUseCase by lazy { FxaLoginUseCase(fxaRepo, sessionRepo, screenController) }
+    val http by lazy { Http(app) }
 
     // These open vals are overridden in testing
     open val frameworkRepo = FrameworkRepo.newInstanceAndInit(app.getAccessibilityManager())
