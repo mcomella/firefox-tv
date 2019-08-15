@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import org.mozilla.gradle.tasks.ValidateAndroidAppReleaseConfiguration
+import org.mozilla.gradle.StaticAnalysis
 
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
@@ -212,6 +213,17 @@ dependencies {
 }
 
 task validateReleaseConfiguration(type: ValidateAndroidAppReleaseConfiguration)
+
+afterEvaluate {
+    def maxAPKMiB = 30
+
+    tasks.getByName("assembleSystemDebug").doLast {
+        StaticAnalysis.validateAPKSize(maxAPKMiB, "app/build/outputs/apk/system/debug/app-system-debug.apk")
+    }
+    tasks.getByName("assembleSystemRelease").doLast {
+        StaticAnalysis.validateAPKSize(maxAPKMiB, "app/build/outputs/apk/system/release/app-system-release-unsigned.apk")
+    }
+}
 
 // -------------------------------------------------------------------------------------------------
 //  Dynamically set versionCode (See tools/build/versionCode.gradle
