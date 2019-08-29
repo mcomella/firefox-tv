@@ -5,6 +5,8 @@
 package org.mozilla.tv.firefox.fxa
 
 import android.app.Application
+import androidx.annotation.VisibleForTesting
+import androidx.annotation.VisibleForTesting.NONE
 import com.amazon.device.messaging.ADM
 import io.reactivex.Observable
 import io.reactivex.subjects.PublishSubject
@@ -28,7 +30,10 @@ private const val senderId = "fftv"
  * When running on emulator or any device not supporting ADM and Instant Run is enabled,
  * you may see ClassNotFound log warnings - these can be safely ignored.
  */
-class ADMIntegration(private val app: Application) {
+class ADMIntegration(
+    private val app: Application,
+    @VisibleForTesting(otherwise = NONE) private val sendTabFeatureProvider: SendTabFeatureProvider = createSendTabFeature
+) {
     private val isADMAvailable = run {
         // Suggested implementation from https://developer.amazon.com/docs/adm/integrate-your-app.html#gracefully-degrade-if-adm-is-unavailable
         try {
@@ -47,11 +52,14 @@ class ADMIntegration(private val app: Application) {
     private val _receivedTabsRaw: PublishSubject<ReceivedTabs> = PublishSubject.create()
     val receivedTabsRaw: Observable<ReceivedTabs> = _receivedTabsRaw.hide()
 
-    fun createSendTabFeature(accountManager: FxaAccountManager) {
+    fun createSendTabFeature(
+        accountManager: FxaAccountManager,
+        @VisibleForTesting(otherwise = NONE) pushFeature: AutoPushFeature = this.pushFeature
+    ) {
         if (isADMAvailable) {
             // For push to work in debug builds (not needed for release), an api key is needed in the assets folder.
             // See README for instructions.
-            SendTabFeature(accountManager, pushFeature) { device, tabData ->
+            sendTabFeatureProvider(accountManager, pushFeature) { device, tabData ->
                 _receivedTabsRaw.onNext(ReceivedTabs(device, tabData))
             }
         }
@@ -79,4 +87,14 @@ class ADMIntegration(private val app: Application) {
      * A tab, as received by ADM. We let consumers handle the conversion to more useful types.
      */
     data class ReceivedTabs(val device: Device?, val tabData: List<TabData>)
+}
+
+typealias OnTabsReceivedCallback = (Device?, List<TabData>) -> Unit
+typealias SendTabFeatureProvider = (FxaAccountManager, AutoPushFeature, OnTabsReceivedCallback) -> SendTabFeature
+private val createSendTabFeature: SendTabFeatureProvider = { accountManager, pushFeature, onTabsReceived ->
+    SendTabFeature(
+        accountManager = accountManager,
+        pushFeature = pushFeature,
+        onTabsReceived = onTabsReceived
+    )
 }
